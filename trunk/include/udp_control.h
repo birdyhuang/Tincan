@@ -20,16 +20,18 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 */
-#ifndef TINCAN_TINCAN_CONTROL_H_
-#define TINCAN_TINCAN_CONTROL_H_
+#ifndef TINCAN_UDP_CONTROL_H_
+#define TINCAN_UDP_CONTROL_H_
+
+#include "control_inf.h"
 
 namespace tincan {
 
-class TincanControl
-{
-public:
-  TincanControl();
-  ~TincanControl();
-};
+  class UdpControl : public ControlInf
+  {
+  public:
+    UdpControl();
+    ~UdpControl();
+  };
 }
-#endif  // TINCAN_TINCAN_CONTROL_H_
+#endif  // TINCAN_UDP_CONTROL_H_

@@ -20,16 +20,33 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 */
-#ifndef TINCAN_TINCAN_CONTROL_H_
-#define TINCAN_TINCAN_CONTROL_H_
+#ifndef TINCAN_ASYNCIO_H_
+#define TINCAN_ASYNCIO_H_
+
+#include "tap_frame.h"
+
+#include "frame_queue.h"
 
 namespace tincan {
 
-class TincanControl
-{
-public:
-  TincanControl();
-  ~TincanControl();
+struct ReadCompletion {
+  ReadCompletion(FrameQueue & frame_queue);
+  int operator()(TapFrame & frame);
+  FrameQueue & frame_queue_;
+};
+
+struct WriteCompletion {
+  WriteCompletion();
+  int operator()(TapFrame & frame);
+};
+
+struct AsyncIoCompletion {
+  AsyncIoCompletion(ReadCompletion & read_compl, WriteCompletion & write_compl) :
+    read_completion(read_compl),
+    write_completion(write_compl)
+  {}
+  ReadCompletion & read_completion;
+  WriteCompletion & write_completion;
 };
 }
-#endif  // TINCAN_TINCAN_CONTROL_H_
+#endif// TINCAN_ASYNCIO_H_

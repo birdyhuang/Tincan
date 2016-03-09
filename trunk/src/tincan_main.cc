@@ -20,15 +20,20 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 */
-
+#include "tincan.h"
 #include <cstddef>
 
-#include "tincan.h"
+using namespace tincan;
 
 int main(int argc, char **argv) {
-	int rv = 0;
-	tincan tc;
-	tc.initialize();
-	tc.run();
-	return rv;
+  int rv = 0;
+  Tincan tc;
+  if (rv = tc.Initialize() < 0)
+    goto EXIT;
+  if (rv = tc.Start() < 0)
+    goto EXIT;
+  tc.Shutdown();
+EXIT:
+  return rv;
+
 }

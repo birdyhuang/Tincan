@@ -20,78 +20,67 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 */
-#ifndef TINCAN_TAPDEV_WIN_H_
-#define TINCAN_TAPDEV_WIN_H_
-
-#include "tapdev_inf.h"
-#include "async_io.h"
+#ifndef TINCAN_TAPDEV_INF_H_
+#define TINCAN_TAPDEV_INF_H_
 
 namespace tincan {
 
-class TapDevWin : public TapDevInf
-{
-public:
-    TapDevWin(
-        AsyncIoCompletion & iocmpl);
-
-    ~TapDevWin();
-    
-  int Open(
+class TapDevInf {
+public: 
+  virtual int Open(
         const char *device, 
-        char *mac);
+        char *mac)=0;
 
-  void Close();
+  virtual void Close()=0;
 
-  int Read(
-        TapFrame & frame);
+  virtual int Read(
+        TapFrame & frame)=0;
 
-  int Write(
-        TapFrame & frame);
+  virtual int Write(
+        TapFrame & frame)=0;
 
-  int Configure(
+  virtual int Configure(
         unsigned long request,
-        void* arg);
+        void* arg)=0;
 
-  int EnableArp();
+  virtual int EnableArp()=0;
 
-  int Up();
+  virtual int Up()=0;
 
-  int Down();
+  virtual int Down()=0;
 
-  int SetMtu(
-        int mtu);
+  virtual int SetMtu(
+        int mtu)=0;
 
-  int SetIp4Addr(
+  virtual int SetIp4Addr(
         const char *presentation,
         unsigned int prefix_len, 
-        char *my_ip4);
+        char *my_ip4)=0;
 
-  int SetIp6Addr(
+  virtual int SetIp6Addr(
         const char *presentation,
-        unsigned int prefix_len);
+        unsigned int prefix_len)=0;
 
-  int SetIp4Route(
-        const char *presentation,
-        unsigned short prefix_len,
-        unsigned int metric);
-
-  int SetIp6Route(
+  virtual int SetIp4Route(
         const char *presentation,
         unsigned short prefix_len,
-        unsigned int metric);
+        unsigned int metric)=0;
 
-  int DisableIp6Autoconfig();
+  virtual int SetIp6Route(
+        const char *presentation,
+        unsigned short prefix_len,
+        unsigned int metric)=0;
 
-  int SetIp4ProcOption(const char *option,
-        const char *value);
+  virtual int DisableIp6Autoconfig()=0;
 
-  int SetIp6ProcOption(
+  virtual int SetIp4ProcOption(
         const char *option,
-        const char *value);
+        const char *value)=0;
 
- protected:
-  int SetFlags();
+  virtual int SetIp6ProcOption(
+        const char *option,
+        const char *value)=0;  
 };
 
 }  // namespace tincan
-#endif  // TINCAN_TAPDEV_WIN_H_
+#endif  // TINCAN_TAPDEV_H_

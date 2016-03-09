@@ -20,16 +20,15 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 */
-#ifndef TINCAN_TINCAN_CONTROL_H_
-#define TINCAN_TINCAN_CONTROL_H_
+#ifndef TINCAN_FRAME_QUEUE_H_
+#define TINCAN_FRAME_QUEUE_H_
+
+#include <queue>
+#include "frame_queue.h"
+#include "tap_frame.h"
 
 namespace tincan {
+  using FrameQueue = std::queue<TapFrame>;
 
-class TincanControl
-{
-public:
-  TincanControl();
-  ~TincanControl();
-};
 }
-#endif  // TINCAN_TINCAN_CONTROL_H_
+#endif  // TINCAN_FRAME_QUEUE_H_
