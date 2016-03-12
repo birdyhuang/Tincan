@@ -20,22 +20,26 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 */
+#ifndef TINCAN_VIRTUAL_NIC_H_
+#define TINCAN_VIRTUAL_NIC_H_
 
-#include <vector>
+#include "tapdev.h"
 
-#include "virtual_nic.h"
+#include "vlink_uid_map.h"
+#include "vnet_peer_map.h"
+#include "xmppnetwork.h"
 
 namespace tincan {
 
-class Tincan
-{
-public:
-  Tincan();
-  ~Tincan();
-  int Initialize();
-  int Start();
-  int Shutdown();
+class VirtualNic {
+ public:
+   VirtualNic();
+  ~VirtualNic();
 private:
-  std::vector<VirtualNic> vnics;
+  XmppNetwork xmpp;
+  TapDev upper;
+  VlinkUidMap vlinkid_map;
+  VlinkUidMap peer_map;
 };
-}
+}  // namespace tincan
+#endif  // TINCAN_VIRTUAL_NIC_H_

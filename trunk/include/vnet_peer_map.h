@@ -20,22 +20,16 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 */
-
-#include <vector>
-
-#include "virtual_nic.h"
+#ifndef TINCAN_VNET_PEER_MAP_H_
+#define TINCAN_VNET_PEER_MAP_H_
 
 namespace tincan {
 
-class Tincan
-{
-public:
-  Tincan();
-  ~Tincan();
-  int Initialize();
-  int Start();
-  int Shutdown();
-private:
-  std::vector<VirtualNic> vnics;
-};
-}
+  class VnetPeerMap {
+  public:
+    VnetPeerMap();
+    ~VnetPeerMap();
+  private:
+  };
+}  // namespace tincan
+#endif  // TINCAN_VNET_PEER_MAP_H_

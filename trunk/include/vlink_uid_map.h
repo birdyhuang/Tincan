@@ -20,22 +20,16 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 */
-
-#include <vector>
-
-#include "virtual_nic.h"
+#ifndef TINCAN_VLINK_UID_MAP_H_
+#define TINCAN_VLINK_UID_MAP_H_
 
 namespace tincan {
 
-class Tincan
-{
-public:
-  Tincan();
-  ~Tincan();
-  int Initialize();
-  int Start();
-  int Shutdown();
-private:
-  std::vector<VirtualNic> vnics;
-};
-}
+  class VlinkUidMap {
+  public:
+    VlinkUidMap();
+    ~VlinkUidMap();
+  private:
+  };
+}  // namespace tincan
+#endif  // TINCAN_VLINK_UID_MAP_H_
