@@ -23,34 +23,40 @@
 #ifndef TINCAN_TAPDEV_WIN_H_
 #define TINCAN_TAPDEV_WIN_H_
 
+#if defined(WINDOWS)
+
+#include <string>
+using namespace std;
 #include "tapdev_inf.h"
 #include "async_io.h"
 
-namespace tincan {
-
-class TapDevWin : public TapDevInf
+namespace tincan 
 {
-public:
-    TapDevWin(
-        AsyncIoCompletion & iocmpl);
+namespace win 
+{
 
-    ~TapDevWin();
-    
+class TapDevWin : public TapDevInf {
+public:
+  TapDevWin(
+    AsyncIoCompletion & iocmpl);
+
+  ~TapDevWin();
+
   int Open(
-        const char *device, 
-        char *mac);
+    const string & devname,
+    const string & mac);
 
   void Close();
 
   int Read(
-        TapFrame & frame);
+    TapFrame & frame);
 
   int Write(
-        TapFrame & frame);
+    TapFrame & frame);
 
   int Configure(
-        unsigned long request,
-        void* arg);
+    unsigned long request,
+    void* arg);
 
   int EnableArp();
 
@@ -59,39 +65,46 @@ public:
   int Down();
 
   int SetMtu(
-        int mtu);
+    int mtu);
 
   int SetIp4Addr(
-        const char *presentation,
-        unsigned int prefix_len, 
-        char *my_ip4);
+    const char *presentation,
+    unsigned int prefix_len,
+    char *my_ip4);
 
   int SetIp6Addr(
-        const char *presentation,
-        unsigned int prefix_len);
+    const char *presentation,
+    unsigned int prefix_len);
 
   int SetIp4Route(
-        const char *presentation,
-        unsigned short prefix_len,
-        unsigned int metric);
+    const char *presentation,
+    unsigned short prefix_len,
+    unsigned int metric);
 
   int SetIp6Route(
-        const char *presentation,
-        unsigned short prefix_len,
-        unsigned int metric);
+    const char *presentation,
+    unsigned short prefix_len,
+    unsigned int metric);
 
   int DisableIp6Autoconfig();
 
   int SetIp4ProcOption(const char *option,
-        const char *value);
+    const char *value);
 
   int SetIp6ProcOption(
-        const char *option,
-        const char *value);
+    const char *option,
+    const char *value);
 
- protected:
+protected:
   int SetFlags();
+  void NetDeviceNameToGuid(
+    const string & name,
+    string & guid);
+  static const char * const NETWORK_PATH;
+  static const char * const USER_MODE_DEVICE_DIR;
+  static const char * const TAP_SUFFIX;
 };
-
+}  // namespace win
 }  // namespace tincan
+#endif  // WINDOWS
 #endif  // TINCAN_TAPDEV_WIN_H_

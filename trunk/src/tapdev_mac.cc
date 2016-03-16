@@ -1,12 +1,15 @@
 #include "tapdev_mac.h"
 
+namespace tincan {
 
 
-tapdev_mac::tapdev_mac()
+TapDevMac::TapDevMac(AsyncIoCompletion & iocmpl)
 {
 }
 
 
-tapdev_mac::~tapdev_mac()
+TapDevMac::~TapDevMac()
 {
+}
+
 }

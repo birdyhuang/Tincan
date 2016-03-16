@@ -332,6 +332,7 @@
     <ClInclude Include="..\include\udp_control.h" />
     <ClInclude Include="..\include\virtual_nic.h" />
     <ClInclude Include="..\include\vnet_peer_map.h" />
+    <ClInclude Include="..\include\win_exception.h" />
     <ClInclude Include="..\include\xmppnetwork.h" />
   </ItemGroup>
   <ItemGroup>
