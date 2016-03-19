@@ -46,7 +46,7 @@ class TapDev : public
 #endif
 {
 public:
-  TapDev(AsyncIoCompletion & iocmpl);
+  TapDev();
 
   virtual ~TapDev();
 };

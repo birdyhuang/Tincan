@@ -23,13 +23,19 @@
 #ifndef TINCAN_TAPFRAME_H_
 #define TINCAN_TAPFRAME_H_
 
-#include <streambuf>
-#include <istream>
+#include <memory>
 
-namespace tincan {
+namespace tincan
+{
 
-class TapFrame : public std::basic_streambuf<char> {
-
+struct TapFrame
+{
+  TapFrame(unsigned int frame_sz) :
+    buffer(new BYTE[frame_sz]),
+    frame_sz(frame_sz) {}
+  TapFrame() : TapFrame(1 << 12) {}
+  unique_ptr<BYTE[]>buffer;
+  DWORD frame_sz;
 };
 }
 #endif  // TINCAN_TAPFRAME_H_

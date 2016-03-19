@@ -27,14 +27,12 @@ namespace tincan {
 
 class TapDevInf {
 public: 
-  virtual int Open(
-        const char *device, 
-        char *mac)=0;
+  virtual void Open(
+    const string & device_name)=0;
 
   virtual void Close()=0;
 
-  virtual int Read(
-        TapFrame & frame)=0;
+  virtual void StartRead()=0;
 
   virtual int Write(
         TapFrame & frame)=0;

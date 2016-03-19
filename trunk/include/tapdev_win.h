@@ -27,6 +27,8 @@
 
 #include <string>
 using namespace std;
+#include <memory>
+#include <windows.h>
 #include "tapdev_inf.h"
 #include "async_io.h"
 
@@ -34,22 +36,18 @@ namespace tincan
 {
 namespace win 
 {
-
 class TapDevWin : public TapDevInf {
 public:
-  TapDevWin(
-    AsyncIoCompletion & iocmpl);
+  TapDevWin();
 
   ~TapDevWin();
 
-  int Open(
-    const string & devname,
-    const string & mac);
+  void Open(
+    const string & device_name);
 
-  void Close();
+  void Close() {}
 
-  int Read(
-    TapFrame & frame);
+  void StartRead();
 
   int Write(
     TapFrame & frame);
@@ -95,14 +93,24 @@ public:
     const char *option,
     const char *value);
 
+  unique_ptr<BYTE[]> GetMacAddress(
+    const string & device_name);
+
 protected:
   int SetFlags();
   void NetDeviceNameToGuid(
     const string & name,
     string & guid);
-  static const char * const NETWORK_PATH;
-  static const char * const USER_MODE_DEVICE_DIR;
-  static const char * const TAP_SUFFIX;
+
+  static const char * const NETWORK_PATH_;
+  static const char * const USER_MODE_DEVICE_DIR_;
+  static const char * const TAP_SUFFIX_;
+//  HANDLE tap_handle_;
+  //OVERLAPPED overlapped_read_,
+  //  overlapped_write_;
+  bool is_read_started_;
+  //bool is_write_started;
+  AsyncIoCompletion iocmpl_;
 };
 }  // namespace win
 }  // namespace tincan
