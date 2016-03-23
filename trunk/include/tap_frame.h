@@ -32,10 +32,17 @@ struct TapFrame
 {
   TapFrame(unsigned int frame_sz) :
     buffer(new BYTE[frame_sz]),
-    frame_sz(frame_sz) {}
-  TapFrame() : TapFrame(1 << 12) {}
+    sz(frame_sz) {}
+  TapFrame &operator= (TapFrame & rhs)
+  {
+    if(this == &rhs) return *this;
+    this->buffer = std::move(rhs.buffer);
+    this->sz = rhs.sz;
+    return *this;
+  }
+  TapFrame() : sz(1<<12) {}
   unique_ptr<BYTE[]>buffer;
-  DWORD frame_sz;
+  DWORD sz;
 };
 }
 #endif  // TINCAN_TAPFRAME_H_

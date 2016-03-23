@@ -323,7 +323,6 @@
     <ClInclude Include="..\include\tapdev_inf.h" />
     <ClInclude Include="..\include\tapdev_lnx.h" />
     <ClInclude Include="..\include\tapdev_mac.h" />
-    <ClInclude Include="..\include\tapdev_win.h" />
     <ClInclude Include="..\include\tap_frame.h" />
     <ClInclude Include="..\include\tincan.h" />
     <ClInclude Include="..\include\vlink_uid_map.h" />
@@ -332,7 +331,8 @@
     <ClInclude Include="..\include\udp_control.h" />
     <ClInclude Include="..\include\virtual_nic.h" />
     <ClInclude Include="..\include\vnet_peer_map.h" />
-    <ClInclude Include="..\include\win_exception.h" />
+    <ClInclude Include="..\include\windows\tapdev_win.h" />
+    <ClInclude Include="..\include\windows\win_exception.h" />
     <ClInclude Include="..\include\xmppnetwork.h" />
   </ItemGroup>
   <ItemGroup>
@@ -340,10 +340,10 @@
     <ClCompile Include="..\src\tapdev.cc" />
     <ClCompile Include="..\src\tapdev_lnx.cc" />
     <ClCompile Include="..\src\tapdev_mac.cc" />
-    <ClCompile Include="..\src\tapdev_win.cc" />
     <ClCompile Include="..\src\tincan.cc" />
     <ClCompile Include="..\src\tincan_control.cc" />
     <ClCompile Include="..\src\tincan_main.cc" />
+    <ClCompile Include="..\src\windows\tapdev_win.cc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{DD4C0E91-0669-4FFE-9676-DDFD405A0440}</ProjectGuid>

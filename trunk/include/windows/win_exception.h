@@ -42,7 +42,7 @@ using namespace std;
 
 namespace tincan
 {
-namespace win
+namespace windows
 {
 #define WINEXCEPT(ExtendedErrorInfo) 	WinException(ExtendedErrorInfo, __FILE__, __LINE__)
 

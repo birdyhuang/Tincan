@@ -32,13 +32,16 @@ using namespace std;
 #include "tapdev_inf.h"
 #include "async_io.h"
 
-namespace tincan 
+namespace tincan
 {
-namespace win 
+namespace windows
 {
-class TapDevWin : public TapDevInf {
+class TapDevWin : public TapDevInf
+{
 public:
-  TapDevWin();
+  TapDevWin(
+    unique_ptr<AsyncRead>async_rd,
+    unique_ptr<AsyncWrite> async_wr_);
 
   ~TapDevWin();
 
@@ -49,68 +52,72 @@ public:
 
   void StartRead();
 
-  int Write(
+  void Write(
     TapFrame & frame);
 
-  int Configure(
-    unsigned long request,
-    void* arg);
+  void EnableArp();
 
-  int EnableArp();
+  void Up();
 
-  int Up();
+  void Down();
 
-  int Down();
-
-  int SetMtu(
+  void SetMtu(
     int mtu);
 
-  int SetIp4Addr(
-    const char *presentation,
-    unsigned int prefix_len,
-    char *my_ip4);
-
-  int SetIp6Addr(
-    const char *presentation,
+  void SetIp4Addr(
+    const string & presentation,
     unsigned int prefix_len);
 
-  int SetIp4Route(
-    const char *presentation,
+  void GetIp4Address(
+    unique_ptr<BYTE[]> ip4,
+    unsigned int ip4_len);
+
+  void SetIp6Addr(
+    const string & presentation,
+    unsigned int prefix_len);
+
+  void GetIp6Address(
+    unique_ptr<BYTE[]> ip6,
+    unsigned int ip6_len);
+
+  void SetIp4Route(
+    const string & presentation,
     unsigned short prefix_len,
     unsigned int metric);
 
-  int SetIp6Route(
-    const char *presentation,
+  void SetIp6Route(
+    const string & presentation,
     unsigned short prefix_len,
     unsigned int metric);
 
-  int DisableIp6Autoconfig();
+  void DisableIp6Autoconfig();
 
-  int SetIp4ProcOption(const char *option,
-    const char *value);
+  void SetIp4ProcOption(
+    const string & option,
+    const string & value);
 
-  int SetIp6ProcOption(
-    const char *option,
-    const char *value);
+  void SetIp6ProcOption(
+    const string & option,
+    const string & value);
 
   unique_ptr<BYTE[]> GetMacAddress(
     const string & device_name);
 
 protected:
-  int SetFlags();
+//  int SetFlags();
   void NetDeviceNameToGuid(
     const string & name,
     string & guid);
-
+  
+  void SetDevHandle(
+    HANDLE handle);
+  
   static const char * const NETWORK_PATH_;
   static const char * const USER_MODE_DEVICE_DIR_;
   static const char * const TAP_SUFFIX_;
-//  HANDLE tap_handle_;
-  //OVERLAPPED overlapped_read_,
-  //  overlapped_write_;
   bool is_read_started_;
-  //bool is_write_started;
-  AsyncIoCompletion iocmpl_;
+  unique_ptr<AsyncRead> rd_overlap_;
+  unique_ptr<AsyncWrite> wr_overlap_;
 };
 }  // namespace win
 }  // namespace tincan

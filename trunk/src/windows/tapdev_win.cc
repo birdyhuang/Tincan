@@ -22,29 +22,19 @@
 */
 #if defined(WINDOWS)
 
-#include "tapdev_win.h"
+#include "windows/tapdev_win.h"
 #include <iphlpapi.h>
 #include <stdio.h>
 #include <wchar.h>
 #include <winsock2.h>
-#include "win_exception.h"
+#include "windows/win_exception.h"
 #define _WINSOCK2API_
 
 
 namespace tincan 
 {
-namespace win
+namespace windows
 {
-VOID CALLBACK ReadCompletionRoutine(
-  DWORD dwErrorCode,
-  DWORD dwNumberOfBytesTransfered,
-  LPOVERLAPPED lpOverlapped
-  )
-{
-  AsyncIo<ReadCompletion> * aio = (AsyncIo<ReadCompletion> *)lpOverlapped;
-  (*aio->completion)(aio->frame);
-}
-
 const char * const TapDevWin::NETWORK_PATH_ = "SYSTEM\\CurrentControlSet\\Control\\Network";
 const char * const TapDevWin::USER_MODE_DEVICE_DIR_ = "\\\\.\\Global\\";
 const char * const TapDevWin::TAP_SUFFIX_ = ".tap";
@@ -53,7 +43,51 @@ const char * const TapDevWin::TAP_SUFFIX_ = ".tap";
   CTL_CODE (FILE_DEVICE_UNKNOWN, request, method, FILE_ANY_ACCESS)
 #define TAP_IOCTL_SET_MEDIA_STATUS      TAP_CONTROL_CODE (6, METHOD_BUFFERED)
 
-TapDevWin::TapDevWin():
+VOID CALLBACK
+ReadCompletionRoutine(
+  DWORD dwErrorCode,
+  DWORD dwNumberOfBytesTransfered,
+  LPOVERLAPPED lpOverlapped
+  )
+{
+  //check read successful
+  AsyncRead * rd_overlap = (AsyncRead*)lpOverlapped;
+  ReadCompletion & rdcompl = *rd_overlap->completion.get();
+  rdcompl(rd_overlap->frame);  //packet processing
+  //issue new async read request
+  ReadFileEx(rd_overlap->dev_handle,
+    rd_overlap->frame.buffer.get(),
+    rd_overlap->frame.sz,
+    (LPOVERLAPPED)&rd_overlap,
+    (LPOVERLAPPED_COMPLETION_ROUTINE)ReadCompletionRoutine);
+
+}
+
+VOID CALLBACK
+WriteCompletionRoutine(
+  DWORD dwErrorCode,
+  DWORD dwNumberOfBytesTransfered,
+  LPOVERLAPPED lpOverlapped
+  )
+{
+  //check write successful
+  AsyncWrite * wr_overlap = (AsyncWrite*)lpOverlapped;
+  WriteCompletion & wrcompl = *wr_overlap->completion.get();
+  wrcompl(wr_overlap->frame);//get data for new write
+  //issue new async write request
+  WriteFileEx(wr_overlap->dev_handle,
+    wr_overlap->frame.buffer.get(),
+    wr_overlap->frame.sz,
+    (LPOVERLAPPED)&wr_overlap,
+    (LPOVERLAPPED_COMPLETION_ROUTINE)WriteCompletionRoutine);
+
+}
+
+TapDevWin::TapDevWin(
+  unique_ptr<AsyncRead>async_rd,
+  unique_ptr<AsyncWrite> async_wr_) :
+  rd_overlap_(std::move(async_rd)),
+  wr_overlap_(std::move(async_wr_)),
   is_read_started_(false)
 {}
 
@@ -76,16 +110,14 @@ TapDevWin::Open(
     GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, 
     FILE_ATTRIBUTE_SYSTEM | FILE_FLAG_OVERLAPPED, 0);
   if(INVALID_HANDLE_VALUE != dev_handle) {
-    iocmpl_.SetDevHandle(dev_handle);
-    if(!DeviceIoControl(iocmpl_.dev_handle, TAP_IOCTL_SET_MEDIA_STATUS,
+    SetDevHandle(dev_handle);
+    if(!DeviceIoControl(dev_handle, TAP_IOCTL_SET_MEDIA_STATUS,
       &status, sizeof(status), &status, sizeof(status), (LPDWORD)&len, NULL))
       throw WINEXCEPT("Failed DeviceIoControl");
   }
   else {
     throw WINEXCEPT("Failed CreateFile");
   }
-  iocmpl_.read_overlap.io_cmpl_routine = ReadCompletionRoutine;
- ? iocmpl_.read_overlap.completion = new ReadCompletion(*new FrameQueue);
 }
 
 void
@@ -93,12 +125,27 @@ TapDevWin::StartRead()
 {
   if(is_read_started_)
     return;//assert?
+  if(!rd_overlap_->frame.buffer)
+    rd_overlap_->frame.buffer = make_unique<BYTE[]>(rd_overlap_->frame.sz);
   is_read_started_ = true;
-  ReadFileEx(iocmpl_.dev_handle,
-    iocmpl_.read_overlap.frame.buffer.get(),
-    iocmpl_.read_overlap.frame.frame_sz,
-    (LPOVERLAPPED)&iocmpl_.read_overlap,
-    (LPOVERLAPPED_COMPLETION_ROUTINE)iocmpl_.read_overlap.io_cmpl_routine);
+  ReadFileEx(rd_overlap_->dev_handle,
+    rd_overlap_->frame.buffer.get(),
+    rd_overlap_->frame.sz,
+    (LPOVERLAPPED)&rd_overlap_,
+    (LPOVERLAPPED_COMPLETION_ROUTINE)ReadCompletionRoutine);
+  return;
+}
+
+void
+TapDevWin::Write(
+  TapFrame & frame)
+{
+  wr_overlap_->frame = frame;
+  WriteFileEx(wr_overlap_->dev_handle,
+    wr_overlap_->frame.buffer.get(),
+    wr_overlap_->frame.sz,
+    (LPOVERLAPPED)&wr_overlap_,
+    (LPOVERLAPPED_COMPLETION_ROUTINE)WriteCompletionRoutine);
   return;
 }
 
@@ -177,6 +224,11 @@ TapDevWin::NetDeviceNameToGuid(
   return;
 }
 
+void TapDevWin::SetDevHandle(HANDLE handle)
+{
+  rd_overlap_->dev_handle = wr_overlap_->dev_handle = handle;
+}
+
 unique_ptr<BYTE[]>
 TapDevWin::GetMacAddress(
   const string & device_name)
@@ -209,6 +261,72 @@ TapDevWin::GetMacAddress(
   return move(mac_address);
 }
 
+void
+TapDevWin::EnableArp() {}
+
+void
+TapDevWin::Up() {}
+
+void
+TapDevWin::Down() {}
+
+void
+TapDevWin::SetMtu(
+  int mtu)
+{}
+
+void
+TapDevWin::SetIp4Addr(
+  const string & presentation,
+  unsigned int prefix_len)
+{}
+
+void
+TapDevWin::GetIp4Address(
+  unique_ptr<BYTE[]> ip4,
+  unsigned int ip4_len)
+{}
+
+void
+TapDevWin::SetIp6Addr(
+  const string & presentation,
+  unsigned int prefix_len)
+{}
+
+void
+TapDevWin::GetIp6Address(
+  unique_ptr<BYTE[]> ip6,
+  unsigned int ip6_len)
+{}
+
+void
+TapDevWin::SetIp4Route(
+  const string & presentation,
+  unsigned short prefix_len,
+  unsigned int metric)
+{}
+
+void
+TapDevWin::SetIp6Route(
+  const string & presentation,
+  unsigned short prefix_len,
+  unsigned int metric)
+{}
+
+void
+TapDevWin::DisableIp6Autoconfig() {}
+
+void
+TapDevWin::SetIp4ProcOption(
+  const string & option,
+  const string & value)
+{}
+
+void
+TapDevWin::SetIp6ProcOption(
+  const string & option,
+  const string & value)
+{}
 }  // namespace win
 }  // namespace tincan
 #endif// WINDOWS

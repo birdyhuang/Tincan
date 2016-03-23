@@ -2,15 +2,18 @@
 
 namespace tincan {
 
-TapDev::TapDev(AsyncIoCompletion & iocmpl) :
+TapDev::TapDev(
+  unique_ptr<AsyncRead>async_rd,
+  unique_ptr<AsyncWrite> async_wr_) :
 #if defined(WINDOWS)
-  TapDevWin(iocmpl)
+  TapDevWin(std::move(async_rd), std::move(async_wr_))
 #elif defined(LINUX)
-  TapDevLnx(iocmpl)
+  TapDevLnx(async_rd), std::move(async_wr_))
 #elif defined(OSX)
-  TapDevMac(iocmpl)
+  TapDevMac(async_rd), std::move(async_wr_))
 #endif
 {}
+
 
 TapDev::~TapDev()
 {}

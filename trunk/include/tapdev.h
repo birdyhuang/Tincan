@@ -27,26 +27,28 @@
 #include "tap_frame.h"
 
 #if defined(LINUX)
-#include "tapdev_lnx.h"
+#include "linux/tapdev_lnx.h"
 #elif defined(OSX)
-#include "tapdev_mac.h"
+#include "mac/tapdev_mac.h"
 #elif defined(WINDOWS)
-#include "tapdev_win.h"
+#include "windows/tapdev_win.h"
 #endif
 
 namespace tincan {
 
 class TapDev : public
 #if defined(LINUX)
-  TapDevLnx
+  linux::TapDevLnx
 #elif defined(OSX)
-  TapDevMac
+  mac::TapDevMac
 #elif defined(WINDOWS)
-  TapDevWin
+  windows::TapDevWin
 #endif
 {
 public:
-  TapDev();
+  TapDev(
+    unique_ptr<AsyncRead>async_rd,
+    unique_ptr<AsyncWrite> async_wr_);
 
   virtual ~TapDev();
 };

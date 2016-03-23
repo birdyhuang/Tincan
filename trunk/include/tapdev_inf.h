@@ -23,61 +23,84 @@
 #ifndef TINCAN_TAPDEV_INF_H_
 #define TINCAN_TAPDEV_INF_H_
 
-namespace tincan {
+#include "tap_frame.h"
 
-class TapDevInf {
-public: 
+namespace tincan
+{
+
+class TapDevInf
+{
+public:
   virtual void Open(
-    const string & device_name)=0;
+    const string & device_name) = 0;
 
-  virtual void Close()=0;
+  virtual void Close() = 0;
 
-  virtual void StartRead()=0;
+  virtual void StartRead() = 0;
 
-  virtual int Write(
-        TapFrame & frame)=0;
+  virtual void Write(
+    TapFrame & frame) = 0;
 
-  virtual int Configure(
-        unsigned long request,
-        void* arg)=0;
+  virtual void EnableArp() = 0;
 
-  virtual int EnableArp()=0;
+  virtual void Up() = 0;
 
-  virtual int Up()=0;
+  virtual void Down() = 0;
 
-  virtual int Down()=0;
+  virtual void SetMtu(
+    int mtu) = 0;
+  /**
+  * Sets the IPv4 address for the device, given a string, such as
+  * "172.31.0.100". The `prefix_len` specifies how many bits are specifying the
+  * subnet, aka the routing prefix or the mask length.
+  */
+  virtual void SetIp4Addr(
+    const string & presentation,
+    unsigned int prefix_len) = 0;
 
-  virtual int SetMtu(
-        int mtu)=0;
+  virtual void GetIp4Address(
+    unique_ptr<BYTE[]> ip4,
+    unsigned int ip4_len) = 0;
 
-  virtual int SetIp4Addr(
-        const char *presentation,
-        unsigned int prefix_len, 
-        char *my_ip4)=0;
+  /**
+  * Sets the IPv6 address for the device, given a string, such as
+  * "fd50:0dbc:41f2:4a3c:0:0:0:1000". The `prefix_len` specifies how many bits
+  * are specifying the subnet, aka the routing prefix (refered to as the mask in
+  * IPv4).
+  */
+  virtual void SetIp6Addr(
+    const string & presentation,
+    unsigned int prefix_len) = 0;
+  
+  virtual void GetIp6Address(
+    unique_ptr<BYTE[]> ip6,
+    unsigned int ip6_len) = 0;
 
-  virtual int SetIp6Addr(
-        const char *presentation,
-        unsigned int prefix_len)=0;
+  /**
+  * Tells the OS to route IPv4 addresses within the subnet (determined by the
+  * `presentation` and `prefix_len` args, see tap_set_ipv4_addr) through us. A
+  * priority is given by metric. The Linux kernel's default metric value is 256
+  * for subnets and 1024 for gateways.
+  */
+  virtual void SetIp4Route(
+    const string & presentation,
+    unsigned short prefix_len,
+    unsigned int metric) = 0;
 
-  virtual int SetIp4Route(
-        const char *presentation,
-        unsigned short prefix_len,
-        unsigned int metric)=0;
+  virtual void SetIp6Route(
+    const string & presentation,
+    unsigned short prefix_len,
+    unsigned int metric) = 0;
 
-  virtual int SetIp6Route(
-        const char *presentation,
-        unsigned short prefix_len,
-        unsigned int metric)=0;
+  virtual void DisableIp6Autoconfig() = 0;
 
-  virtual int DisableIp6Autoconfig()=0;
+  virtual void SetIp4ProcOption(
+    const string & option,
+    const string & value) = 0;
 
-  virtual int SetIp4ProcOption(
-        const char *option,
-        const char *value)=0;
-
-  virtual int SetIp6ProcOption(
-        const char *option,
-        const char *value)=0;  
+  virtual void SetIp6ProcOption(
+    const string & option,
+    const string & value) = 0;
 };
 
 }  // namespace tincan

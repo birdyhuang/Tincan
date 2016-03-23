@@ -23,20 +23,14 @@
 #ifndef TINCAN_ASYNCIO_H_
 #define TINCAN_ASYNCIO_H_
 
+#if defined(WINDOWS)
 #include <windows.h>
+#endif // defined(windows)
 #include "tap_frame.h"
 #include "frame_queue.h"
 
 namespace tincan
 {
-template<typename T>
-struct AsyncIo : public OVERLAPPED
-{
-  HANDLE dev_handle;
-  TapFrame frame;
-  LPOVERLAPPED_COMPLETION_ROUTINE io_cmpl_routine;
- ? T *completion;
-};
 
 struct ReadCompletion
 {
@@ -59,31 +53,39 @@ struct WriteCompletion
   FrameQueue & oframe_queue;
 };
 
-struct AsyncIoCompletion
+struct AsyncRead : public
+#if defined(WINDOWS)
+  OVERLAPPED
+#endif // defined(windows)
 {
-  AsyncIoCompletion():
-    //ReadCompletion & read_compl,
-    //WriteCompletion & write_compl) :
-    //read_completion(read_compl),
-    //write_completion(write_compl),
-    dev_handle(INVALID_HANDLE_VALUE)
-  {}
-  ~AsyncIoCompletion()
-  {
-    if(INVALID_HANDLE_VALUE != dev_handle)
-      CloseHandle(dev_handle);
-  }
-  void SetDevHandle(HANDLE handle)
-  {
-    dev_handle = handle;
-    read_overlap.dev_handle = handle;
-    write_overlap.dev_handle = handle;
-  }
+  AsyncRead(unique_ptr<ReadCompletion> ro_cmpl) : completion(std::move(ro_cmpl)) {}
   HANDLE dev_handle;
-  AsyncIo<ReadCompletion> read_overlap;
-  AsyncIo<WriteCompletion> write_overlap;
-  //ReadCompletion & read_completion;
-  //WriteCompletion & write_completion;
+  TapFrame frame;
+  unique_ptr<ReadCompletion> completion;
+};
+
+struct AsyncWrite : public
+#if defined(WINDOWS)
+  OVERLAPPED
+#endif // defined(windows)
+{
+  AsyncWrite(unique_ptr<WriteCompletion> io_cmpl) : completion(std::move(io_cmpl)) {}
+  HANDLE dev_handle;
+  TapFrame frame;
+  unique_ptr<WriteCompletion> completion;
+};
+
+struct AsyncIo
+{
+  AsyncIo(
+    unique_ptr<ReadCompletion> read_compl,
+    unique_ptr<WriteCompletion> write_compl) :
+    asyncrd(std::move(read_compl)),
+    asyncwr(std::move(write_compl))
+  {}
+
+  AsyncRead asyncrd;
+  AsyncWrite asyncwr;
 };
 
 
