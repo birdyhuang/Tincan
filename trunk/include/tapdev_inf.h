@@ -24,9 +24,11 @@
 #define TINCAN_TAPDEV_INF_H_
 
 #include "tap_frame.h"
+#include <string>
 
 namespace tincan
 {
+using namespace std;
 
 class TapDevInf
 {
@@ -59,8 +61,8 @@ public:
     unsigned int prefix_len) = 0;
 
   virtual void GetIp4Address(
-    unique_ptr<BYTE[]> ip4,
-    unsigned int ip4_len) = 0;
+    unique_ptr<unsigned char[]> ip4,
+    unsigned int ip4_len) const = 0;
 
   /**
   * Sets the IPv6 address for the device, given a string, such as
@@ -73,8 +75,8 @@ public:
     unsigned int prefix_len) = 0;
   
   virtual void GetIp6Address(
-    unique_ptr<BYTE[]> ip6,
-    unsigned int ip6_len) = 0;
+    unique_ptr<unsigned char[]> ip6,
+    unsigned int ip6_len) const = 0;
 
   /**
   * Tells the OS to route IPv4 addresses within the subnet (determined by the
@@ -101,6 +103,9 @@ public:
   virtual void SetIp6ProcOption(
     const string & option,
     const string & value) = 0;
+
+  virtual unique_ptr<BYTE[]> GetMacAddress(
+    const string & device_name) const = 0;
 };
 
 }  // namespace tincan

@@ -27,13 +27,17 @@ using namespace tincan;
 
 int main(int argc, char **argv) {
   int rv = 0;
-  Tincan tc;
-  if (rv = tc.Initialize() < 0)
-    goto EXIT;
-  if (rv = tc.Start() < 0)
-    goto EXIT;
-  tc.Shutdown();
-EXIT:
+  try {
+    Tincan tc;
+    tc.Initialize();
+    tc.Start();
+    tc.Shutdown();
+  }
+  catch(exception & e) {
+    rv = -1;
+    e.what();
+  }
+
   return rv;
 
 }

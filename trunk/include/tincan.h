@@ -26,16 +26,19 @@
 #include "virtual_nic.h"
 
 namespace tincan {
+using namespace std;
 
 class Tincan
 {
 public:
   Tincan();
   ~Tincan();
-  int Initialize();
-  int Start();
-  int Shutdown();
+  void Initialize();
+  void Start();
+  void Shutdown();
 private:
-  std::vector<VirtualNic> vnics;
+  void WaitForConfigSignal();
+  void WaitForExitSignal();
+  std::vector<unique_ptr<VirtualNic>> vnics_;
 };
 }

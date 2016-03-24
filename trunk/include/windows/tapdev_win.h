@@ -70,7 +70,7 @@ public:
 
   void GetIp4Address(
     unique_ptr<BYTE[]> ip4,
-    unsigned int ip4_len);
+    unsigned int ip4_len) const;
 
   void SetIp6Addr(
     const string & presentation,
@@ -78,7 +78,7 @@ public:
 
   void GetIp6Address(
     unique_ptr<BYTE[]> ip6,
-    unsigned int ip6_len);
+    unsigned int ip6_len) const;
 
   void SetIp4Route(
     const string & presentation,
@@ -101,7 +101,7 @@ public:
     const string & value);
 
   unique_ptr<BYTE[]> GetMacAddress(
-    const string & device_name);
+    const string & device_name) const;
 
 protected:
 //  int SetFlags();

@@ -30,16 +30,30 @@ namespace tincan
 
 struct TapFrame
 {
-  TapFrame(unsigned int frame_sz) :
+  explicit TapFrame(unsigned int frame_sz) :
     buffer(new BYTE[frame_sz]),
     sz(frame_sz) {}
-  TapFrame &operator= (TapFrame & rhs)
+  TapFrame(unsigned char * data, unsigned int len) : 
+    sz(len), buffer(data)
+  {}
+
+  TapFrame &operator= (TapFrame const & rhs)
+  {
+    if(this == &rhs) return *this;
+    this->buffer = std::make_unique<BYTE[]>(rhs.sz);
+    memcpy(this->buffer.get(), rhs.buffer.get(), rhs.sz);
+    this->sz = rhs.sz;
+    return *this;
+  }
+
+  TapFrame &operator= (TapFrame && rhs)
   {
     if(this == &rhs) return *this;
     this->buffer = std::move(rhs.buffer);
     this->sz = rhs.sz;
     return *this;
   }
+
   TapFrame() : sz(1<<12) {}
   unique_ptr<BYTE[]>buffer;
   DWORD sz;

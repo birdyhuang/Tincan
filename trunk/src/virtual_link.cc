@@ -20,57 +20,29 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 */
-#include "tincan.h"
-
+#include<memory>
+#include "tap_frame.h"
+#include "virtual_link.h"
 namespace tincan
 {
-struct VirtNiConfig {};
+using namespace std;
 
-Tincan::Tincan()
+VirtualLink::VirtualLink()
 {}
 
-Tincan::~Tincan()
+VirtualLink::~VirtualLink()
 {}
 
 void
-Tincan::Initialize()
+VirtualLink::OnReadPacket(
+  cricket::TransportChannel * channel,
+  const char * data,
+  size_t len,
+  const rtc::PacketTime & ptime,
+  int flags)
 {
-  //Start tincan control to get config from Controller
-  //...
-  vector<unique_ptr<VirtNiConfig>> vniccfglist;
-  //...
-  WaitForConfigSignal();
-  //parse config and create a vnic for each virtual interface that is specified
-  for(auto & vncfg : vniccfglist) {
-    auto vnic = make_unique<VirtualNic>(vncfg.release());
-    vnic->Configure();
-    vnics_.push_back(vnic);
-  }
+  unique_ptr<TapFrame> frame = make_unique<TapFrame>(TapFrame((unsigned char*)data, len));
+
 }
 
-void
-Tincan::Start()
-{
-  for(auto const & vnic : vnics_) {
-    vnic->Start();
-  }
-  WaitForExitSignal();
 }
-
-void
-Tincan::Shutdown()
-{
-  for(auto const & vnic : vnics_) {
-    vnic->Shutdown();
-  }
-}
-
-void
-Tincan::WaitForConfigSignal()
-{}
-
-void
-Tincan::WaitForExitSignal()
-{}
-} // namespace tincan
-

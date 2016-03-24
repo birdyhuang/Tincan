@@ -990,6 +990,9 @@
     <ClInclude Include="..\include\windows\win_exception.h">
       <Filter>Header Files\windows</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\virtual_link.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\peer_network.cc">
@@ -1015,6 +1018,12 @@
     </ClCompile>
     <ClCompile Include="..\src\windows\tapdev_win.cc">
       <Filter>Source Files\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\virtual_link.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\virtual_nic.cc">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

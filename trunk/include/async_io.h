@@ -58,7 +58,7 @@ struct AsyncRead : public
   OVERLAPPED
 #endif // defined(windows)
 {
-  AsyncRead(unique_ptr<ReadCompletion> ro_cmpl) : completion(std::move(ro_cmpl)) {}
+  AsyncRead(unique_ptr<ReadCompletion> rd_cmpl) : completion(std::move(rd_cmpl)) {}
   HANDLE dev_handle;
   TapFrame frame;
   unique_ptr<ReadCompletion> completion;
@@ -69,7 +69,7 @@ struct AsyncWrite : public
   OVERLAPPED
 #endif // defined(windows)
 {
-  AsyncWrite(unique_ptr<WriteCompletion> io_cmpl) : completion(std::move(io_cmpl)) {}
+  AsyncWrite(unique_ptr<WriteCompletion> wr_cmpl) : completion(std::move(wr_cmpl)) {}
   HANDLE dev_handle;
   TapFrame frame;
   unique_ptr<WriteCompletion> completion;

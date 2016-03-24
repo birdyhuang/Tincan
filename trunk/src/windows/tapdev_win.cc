@@ -231,7 +231,7 @@ void TapDevWin::SetDevHandle(HANDLE handle)
 
 unique_ptr<BYTE[]>
 TapDevWin::GetMacAddress(
-  const string & device_name)
+  const string & device_name) const
 {
   unique_ptr<BYTE[]> mac_address;
   int num_addresses = 16;
@@ -284,7 +284,7 @@ TapDevWin::SetIp4Addr(
 void
 TapDevWin::GetIp4Address(
   unique_ptr<BYTE[]> ip4,
-  unsigned int ip4_len)
+  unsigned int ip4_len) const
 {}
 
 void
@@ -296,7 +296,7 @@ TapDevWin::SetIp6Addr(
 void
 TapDevWin::GetIp6Address(
   unique_ptr<BYTE[]> ip6,
-  unsigned int ip6_len)
+  unsigned int ip6_len) const
 {}
 
 void

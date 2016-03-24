@@ -27,19 +27,30 @@
 
 #include "vlink_uid_map.h"
 #include "vnet_peer_map.h"
+#include "virtual_link.h"
 #include "xmppnetwork.h"
+#include "base/thread.h"
 
 namespace tincan {
 
+struct VirtalNiConfig {};
+
 class VirtualNic {
  public:
-   VirtualNic();
+   VirtualNic(VirtalNiConfig * vncfg);
   ~VirtualNic();
+  void Configure();
+  void Start();
+  void Shutdown();
 private:
-  XmppNetwork xmpp;
-  TapDev upper;
-  VlinkUidMap vlinkid_map;
-  VlinkUidMap peer_map;
+  XmppNetwork xmpp_;
+  TapDev * tdev_;
+  VirtualLink vlink_;
+  VlinkUidMap vlinkid_map_;
+  VlinkUidMap peer_map_;
+  rtc::Thread vlink_thread_;
+  FrameQueue fqr_, fqw_;
+  VirtalNiConfig * config_;
 };
 }  // namespace tincan
 #endif  // TINCAN_VIRTUAL_NIC_H_

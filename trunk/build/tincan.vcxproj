@@ -325,6 +325,7 @@
     <ClInclude Include="..\include\tapdev_mac.h" />
     <ClInclude Include="..\include\tap_frame.h" />
     <ClInclude Include="..\include\tincan.h" />
+    <ClInclude Include="..\include\virtual_link.h" />
     <ClInclude Include="..\include\vlink_uid_map.h" />
     <ClInclude Include="..\include\tincanxmppsocket.h" />
     <ClInclude Include="..\include\tincan_control.h" />
@@ -342,7 +343,9 @@
     <ClCompile Include="..\src\tapdev_mac.cc" />
     <ClCompile Include="..\src\tincan.cc" />
     <ClCompile Include="..\src\tincan_control.cc" />
+    <ClCompile Include="..\src\virtual_link.cc" />
     <ClCompile Include="..\src\tincan_main.cc" />
+    <ClCompile Include="..\src\virtual_nic.cc" />
     <ClCompile Include="..\src\windows\tapdev_win.cc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
