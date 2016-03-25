@@ -20,15 +20,14 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 */
-#if defined(WINDOWS)
+#if defined(_IPOP_WIN)
 
 #include "windows/tapdev_win.h"
 #include <iphlpapi.h>
 #include <stdio.h>
 #include <wchar.h>
-#include <winsock2.h>
+#include <winioctl.h>
 #include "windows/win_exception.h"
-#define _WINSOCK2API_
 
 
 namespace tincan 
@@ -138,9 +137,9 @@ TapDevWin::StartRead()
 
 void
 TapDevWin::Write(
-  TapFrame & frame)
+  TapFrame & aframe)
 {
-  wr_overlap_->frame = frame;
+  //wr_overlap_->frame = aframe;
   WriteFileEx(wr_overlap_->dev_handle,
     wr_overlap_->frame.buffer.get(),
     wr_overlap_->frame.sz,
@@ -154,10 +153,10 @@ TapDevWin::NetDeviceNameToGuid(
   const string & name,
   string & guid)
 {
-  int i_0 = 0, i_1 = 0;
+  DWORD i_0 = 0, i_1 = 0;
   bool found = false;
   DWORD size = 256;
-  HKEY key_0, key_1, key_2;
+  HKEY key_0 = 0, key_1 = 0, key_2 = 0;
   char name_0[256], name_1[256], name_2[256];
   string full_path;
   try {
@@ -189,7 +188,6 @@ TapDevWin::NetDeviceNameToGuid(
         /* This enumerates through the next layer Network\layer0\layer1 */
         if(RegEnumKeyEx(key_1, i_1, name_1, &size, NULL, NULL, NULL, NULL)
           != ERROR_SUCCESS) {
-          i_1 = -1;
           break;
         }
 
@@ -234,8 +232,8 @@ TapDevWin::GetMacAddress(
   const string & device_name) const
 {
   unique_ptr<BYTE[]> mac_address;
-  int num_addresses = 16;
-  ULONG adptbuflen = num_addresses * sizeof(IP_ADAPTER_ADDRESSES);
+  size_t num_addresses = 16;
+  ULONG adptbuflen = (ULONG)num_addresses * sizeof(IP_ADAPTER_ADDRESSES);
   wchar_t tmp_name[100];
   wchar_t w_device_name[100];
   int result = 0;

@@ -37,7 +37,7 @@
 #include <exception>
 #include <cstdlib>
 using namespace std;
-#include <windows.h>
+//#include <windows.h>
 
 
 namespace tincan

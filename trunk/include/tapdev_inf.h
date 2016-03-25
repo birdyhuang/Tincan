@@ -104,7 +104,7 @@ public:
     const string & option,
     const string & value) = 0;
 
-  virtual unique_ptr<BYTE[]> GetMacAddress(
+  virtual unique_ptr<unsigned char[]> GetMacAddress(
     const string & device_name) const = 0;
 };
 

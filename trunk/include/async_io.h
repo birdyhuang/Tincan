@@ -23,9 +23,7 @@
 #ifndef TINCAN_ASYNCIO_H_
 #define TINCAN_ASYNCIO_H_
 
-#if defined(WINDOWS)
-#include <windows.h>
-#endif // defined(windows)
+#include <memory>
 #include "tap_frame.h"
 #include "frame_queue.h"
 
@@ -37,7 +35,8 @@ struct ReadCompletion
   ReadCompletion(FrameQueue & iframe_queue) : iframe_queue(iframe_queue) {}
   int operator()(TapFrame & frame)
   {
-    iframe_queue.push(frame);
+    //iframe_queue.push(frame);
+    return 0;
   }
   FrameQueue & iframe_queue;
 };
@@ -49,14 +48,15 @@ struct WriteCompletion
   {
     oframe_queue.front();
     oframe_queue.pop();
+    return 0;
   }
   FrameQueue & oframe_queue;
 };
 
-struct AsyncRead : public
-#if defined(WINDOWS)
-  OVERLAPPED
-#endif // defined(windows)
+struct AsyncRead
+#if defined(_IPOP_WIN)
+: public OVERLAPPED
+#endif // defined(_IPOP_WIN)
 {
   AsyncRead(unique_ptr<ReadCompletion> rd_cmpl) : completion(std::move(rd_cmpl)) {}
   HANDLE dev_handle;
@@ -64,10 +64,10 @@ struct AsyncRead : public
   unique_ptr<ReadCompletion> completion;
 };
 
-struct AsyncWrite : public
-#if defined(WINDOWS)
-  OVERLAPPED
-#endif // defined(windows)
+struct AsyncWrite
+#if defined(_IPOP_WIN)
+: public OVERLAPPED
+#endif // defined(_IPOP_WIN)
 {
   AsyncWrite(unique_ptr<WriteCompletion> wr_cmpl) : completion(std::move(wr_cmpl)) {}
   HANDLE dev_handle;

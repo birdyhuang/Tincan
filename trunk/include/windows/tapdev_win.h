@@ -23,12 +23,13 @@
 #ifndef TINCAN_TAPDEV_WIN_H_
 #define TINCAN_TAPDEV_WIN_H_
 
-#if defined(WINDOWS)
+#if defined(_IPOP_WIN)
 
 #include <string>
 using namespace std;
 #include <memory>
-#include <windows.h>
+#include <Winsock2.h>
+//#include <minwindef.h>
 #include "tapdev_inf.h"
 #include "async_io.h"
 
@@ -121,5 +122,5 @@ protected:
 };
 }  // namespace win
 }  // namespace tincan
-#endif  // WINDOWS
+#endif  // _IPOP_WIN
 #endif  // TINCAN_TAPDEV_WIN_H_

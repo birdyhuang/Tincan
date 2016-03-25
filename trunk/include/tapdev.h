@@ -30,7 +30,7 @@
 #include "linux/tapdev_lnx.h"
 #elif defined(OSX)
 #include "mac/tapdev_mac.h"
-#elif defined(WINDOWS)
+#elif defined(_IPOP_WIN)
 #include "windows/tapdev_win.h"
 #endif
 
@@ -41,7 +41,7 @@ class TapDev : public
   linux::TapDevLnx
 #elif defined(OSX)
   mac::TapDevMac
-#elif defined(WINDOWS)
+#elif defined(_IPOP_WIN)
   windows::TapDevWin
 #endif
 {

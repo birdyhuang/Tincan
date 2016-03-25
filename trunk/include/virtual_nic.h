@@ -29,7 +29,7 @@
 #include "vnet_peer_map.h"
 #include "virtual_link.h"
 #include "xmppnetwork.h"
-#include "base/thread.h"
+#include "webrtc/base/thread.h"
 
 namespace tincan {
 

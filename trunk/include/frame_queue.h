@@ -24,7 +24,6 @@
 #define TINCAN_FRAME_QUEUE_H_
 
 #include <queue>
-#include "frame_queue.h"
 #include "tap_frame.h"
 
 namespace tincan {

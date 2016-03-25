@@ -20,49 +20,35 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 */
-#ifndef TINCAN_TAPFRAME_H_
-#define TINCAN_TAPFRAME_H_
-
-#include <memory>
+#if defined(_IPOP_WIN)
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#include <stdint.h>
+#endif // defined(windows)
+#include "virtual_link.h"
 
 namespace tincan
 {
-
-using namespace std;
-struct TapFrame
+class RemotePeer
 {
-  TapFrame() : sz(0) {}
+public:
+  RemotePeer();
+	~RemotePeer();
 
-  explicit TapFrame(unsigned int frame_sz) :
-    sz(frame_sz),
-    buffer(make_unique<unsigned char[]>(frame_sz)) {}
+private:
+  char id[ID_SIZE]; // 160bit unique identifier
+  struct in_addr virt_ip; // the virtual IPv4 address that we see
+  struct in6_addr virt_ip6; // the virtual IPv6 address that we see
+  struct in_addr dest_ip4;  // the actual address to send data to
+  unsigned char mac[6]; // MAC address
+  uint16_t port; // The open port on the client that we're connected to
 
-  TapFrame(unsigned char * data, unsigned int len) : 
-    sz(len), buffer(data)
-  {}
-  TapFrame(TapFrame & frame)
-  {
-    *this = frame;
-  }
-  TapFrame & operator= (const TapFrame & rhs)
-  {
-    if(this == &rhs) return *this;
-    this->buffer = std::make_unique<unsigned char[]>(rhs.sz);
-    memcpy(this->buffer.get(), rhs.buffer.get(), rhs.sz);
-    this->sz = rhs.sz;
-    return *this;
-  }
+  size_t overlay_id;
+  size_t last_time;
+  std::string uid;
+  std::string fingerprint;
+  std::string connection_security;
 
-  TapFrame &operator= (TapFrame && rhs)
-  {
-    if(this == &rhs) return *this;
-    this->buffer = std::move(rhs.buffer);
-    this->sz = rhs.sz;
-    return *this;
-  }
-
-  unique_ptr<unsigned char[]>buffer;
-  size_t sz;
+  VirtualLink vlink;
 };
-}
-#endif  // TINCAN_TAPFRAME_H_
+} // namespace tincan

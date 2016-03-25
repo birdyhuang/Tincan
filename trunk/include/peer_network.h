@@ -20,11 +20,20 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 */
-
+namespace tincan
+{
 class PeerNetwork
 {
 public:
-	peer_network();
-	~peer_network();
+  PeerNetwork();
+	~PeerNetwork();
+private:
+  //list of peers
+  //map by ip4
+  //map by ip6
+  //map by uid
+  //map by mac
 };
+} // namespace tincan
+
 

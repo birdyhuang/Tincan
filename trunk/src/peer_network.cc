@@ -1,12 +1,10 @@
 #include "peer_network.h"
 
-
-
-peer_network::peer_network()
+PeerNetwork::PeerNetwork()
 {
 }
 
 
-peer_network::~peer_network()
+PeerNetwork::~PeerNetwork()
 {
 }
