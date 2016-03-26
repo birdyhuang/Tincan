@@ -42,7 +42,7 @@ Tincan::Initialize()
   WaitForConfigSignal();
   //parse config and create a vnic for each virtual interface that is specified
   for(auto & vncfg : vniccfglist) {
-    auto vnic = make_unique<VirtualNic>(vncfg.release());
+    auto vnic = make_unique<VirtualNetwork>(vncfg.release());
     vnic->Configure();
     vnics_.push_back(vnic);
   }

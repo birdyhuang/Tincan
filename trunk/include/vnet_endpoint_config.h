@@ -20,35 +20,27 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 */
-#if defined(_IPOP_WIN)
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#include <stdint.h>
-#endif // defined(windows)
-#include "virtual_link.h"
+#ifndef TINCAN_VNET_ENDPOINT_CONFIG_H_
+#define TINCAN_VNET_ENDPOINT_CONFIG_H_
+
+#include <string>
 
 namespace tincan
 {
-class RemotePeer
+using namespace std;
+struct VnetEndpointConfig
 {
-public:
-  RemotePeer(VnetEndpointConfig const & endpoint_cfg);
-	~RemotePeer();
-
-private:
-  struct in_addr virt_ip_;// the virtual IPv4 address that we see
-  struct in6_addr virt_ip_6;// the virtual IPv6 address that we see
-  struct in_addr dest_ip4_;// the actual address to send data to
-  unique_ptr<unsigned char[6]> mac;// MAC address
-
-  size_t overlay_id;
-  string uid_; // 160bit unique identifier
-  string fingerprint_;
-  VirtualLink vlink_;
-
-//string connection_security;
-//uint16_t port; // The open port on the client that we're connected to
-//string id; // 160bit unique identifier
-//size_t last_time;
+  string uid_;
+  string vip4;
+  string vip6;
+  string real_ip;
 };
+struct LocalVnetEndpointConfig : public VnetEndpointConfig
+{
+  string xmpp_url_;
+  string xmpp_user_;
+  string xmpp_pw_;
+};
+
 } // namespace tincan
+#endif // TINCAN_VNET_ENDPOINT_CONFIG_H_

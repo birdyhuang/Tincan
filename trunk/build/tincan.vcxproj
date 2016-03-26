@@ -327,12 +327,11 @@
     <ClInclude Include="..\include\tap_frame.h" />
     <ClInclude Include="..\include\tincan.h" />
     <ClInclude Include="..\include\virtual_link.h" />
-    <ClInclude Include="..\include\vlink_uid_map.h" />
     <ClInclude Include="..\include\tincanxmppsocket.h" />
     <ClInclude Include="..\include\tincan_control.h" />
     <ClInclude Include="..\include\udp_control.h" />
-    <ClInclude Include="..\include\virtual_nic.h" />
-    <ClInclude Include="..\include\vnet_peer_map.h" />
+    <ClInclude Include="..\include\virtual_network.h" />
+    <ClInclude Include="..\include\vnet_endpoint_config.h" />
     <ClInclude Include="..\include\windows\tapdev_win.h" />
     <ClInclude Include="..\include\windows\win_exception.h" />
     <ClInclude Include="..\include\xmppnetwork.h" />
@@ -346,7 +345,7 @@
     <ClCompile Include="..\src\tincan_control.cc" />
     <ClCompile Include="..\src\virtual_link.cc" />
     <ClCompile Include="..\src\tincan_main.cc" />
-    <ClCompile Include="..\src\virtual_nic.cc" />
+    <ClCompile Include="..\src\virtual_network.cc" />
     <ClCompile Include="..\src\windows\tapdev_win.cc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

@@ -20,12 +20,12 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 */
-#include "virtual_nic.h"
+#include "virtual_network.h"
 namespace tincan
 {
-VirtualNic::VirtualNic(VirtalNiConfig * vncfg) :
+VirtualNetwork::VirtualNetwork(unique_ptr<LocalVnetEndpointConfig> lvncfg) :
   tdev_(nullptr),
-  config_(vncfg)
+  config_(lvncfg)
 {
   tdev_ = new TapDev(
     make_unique<AsyncRead>(
@@ -36,12 +36,12 @@ VirtualNic::VirtualNic(VirtalNiConfig * vncfg) :
         WriteCompletion(fqw_))))));
 }
 
-VirtualNic::~VirtualNic()
+VirtualNetwork::~VirtualNetwork()
 {
   delete config_;
   delete tdev_;
 }
-void VirtualNic::Configure()
+void VirtualNetwork::Configure()
 {
   //initialize the Tap Device
   //tdev_->Open();
@@ -71,13 +71,13 @@ void VirtualNic::Configure()
   delete config_;
   config_ = nullptr;
 }
-void VirtualNic::Start()
+void VirtualNetwork::Start()
 {
   tdev_->Up();
   tdev_->StartRead();
   vlink_thread_.Run();
 }
-void VirtualNic::Shutdown()
+void VirtualNetwork::Shutdown()
 {
   tdev_->Down();
 }

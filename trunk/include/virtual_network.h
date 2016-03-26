@@ -24,33 +24,29 @@
 #define TINCAN_VIRTUAL_NIC_H_
 
 #include "tapdev.h"
-
-#include "vlink_uid_map.h"
-#include "vnet_peer_map.h"
-#include "virtual_link.h"
+#include <memory>
+#include "peer_network.h"
+#include "vnet_endpoint_config.h"
 #include "xmppnetwork.h"
 #include "webrtc/base/thread.h"
 
 namespace tincan {
 
-struct VirtalNiConfig {};
-
-class VirtualNic {
+class VirtualNetwork {
  public:
-   VirtualNic(VirtalNiConfig * vncfg);
-  ~VirtualNic();
+   VirtualNetwork(unique_ptr<LocalVnetEndpointConfig> lvncfg);
+  ~VirtualNetwork();
   void Configure();
   void Start();
   void Shutdown();
 private:
-  XmppNetwork xmpp_;
+  XmppNetwork xmpp_network;
   TapDev * tdev_;
-  VirtualLink vlink_;
-  VlinkUidMap vlinkid_map_;
-  VlinkUidMap peer_map_;
+  PeerNetwork peer_network_;
+  unique_ptr<LocalVnetEndpointConfig> config_;
+
   rtc::Thread vlink_thread_;
   FrameQueue fqr_, fqw_;
-  VirtalNiConfig * config_;
 };
 }  // namespace tincan
 #endif  // TINCAN_VIRTUAL_NIC_H_

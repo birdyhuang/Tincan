@@ -21,10 +21,10 @@
 * THE SOFTWARE.
 */
 
+#include <memory>
 #include <vector>
-
-#include "virtual_nic.h"
-
+#include "virtual_network.h"
+#include "tincan_control.h"
 namespace tincan {
 using namespace std;
 
@@ -39,6 +39,7 @@ public:
 private:
   void WaitForConfigSignal();
   void WaitForExitSignal();
-  std::vector<unique_ptr<VirtualNic>> vnics_;
+  vector<unique_ptr<VirtualNetwork>> vnets_;
+  TincanControl control_;
 };
 }

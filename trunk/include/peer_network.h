@@ -20,19 +20,42 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 */
+#include <map>
+#include <vector>
+using namespace std;
+#include "vlink_uid_map.h"
+#include "vnet_peer_map.h"
+#include "remote_peer.h"
 namespace tincan
 {
+enum MapLookupType
+{
+  IP4,
+  IP6,
+  MAC,
+  UID,
+  MAX_TYPE
+};
 class PeerNetwork
 {
 public:
   PeerNetwork();
 	~PeerNetwork();
+  RemotePeer & GetPeer(
+    string identifier, 
+    MapLookupType id_type);
 private:
-  //list of peers
+  //list of remote peer nodes on this virt net
+  vector<RemotePeer> peers_;
   //map by ip4
+  map<string, RemotePeer> ip4_map;
   //map by ip6
-  //map by uid
+  map<string, RemotePeer> ip6_map;
   //map by mac
+  map<string, RemotePeer> mac_map;
+  //map by uid
+  map<string, RemotePeer> uid_map;
+
 };
 } // namespace tincan
 

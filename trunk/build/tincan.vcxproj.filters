@@ -975,15 +975,6 @@
     <ClInclude Include="..\..\external\include\webrtc\p2p\client\autoportallocator.h">
       <Filter>webrtc\p2p\client</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\virtual_nic.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\vnet_peer_map.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\vlink_uid_map.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\windows\tapdev_win.h">
       <Filter>Header Files\windows</Filter>
     </ClInclude>
@@ -994,6 +985,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\include\remote_peer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\vnet_endpoint_config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\virtual_network.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1025,7 +1022,7 @@
     <ClCompile Include="..\src\virtual_link.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\virtual_nic.cc">
+    <ClCompile Include="..\src\virtual_network.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
