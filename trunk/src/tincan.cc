@@ -24,7 +24,6 @@
 
 namespace tincan
 {
-struct VirtNiConfig {};
 
 Tincan::Tincan()
 {}
@@ -36,23 +35,23 @@ void
 Tincan::Initialize()
 {
   //Start tincan control to get config from Controller
+  control_.Start();
+  
   //...
-  vector<unique_ptr<VirtNiConfig>> vniccfglist;
-  //...
-  WaitForConfigSignal();
+  WaitForConfig();
   //parse config and create a vnic for each virtual interface that is specified
-  for(auto & vncfg : vniccfglist) {
-    auto vnic = make_unique<VirtualNetwork>(vncfg.release());
-    vnic->Configure();
-    vnics_.push_back(vnic);
+  for(auto & lvecfg : lve_cfglist) {
+    auto vnet = make_unique<VirtualNetwork>(lvecfg.release());
+    vnet->Configure();
+    vnets_.push_back(vnet);
   }
 }
 
 void
 Tincan::Start()
 {
-  for(auto const & vnic : vnics_) {
-    vnic->Start();
+  for(auto const & vnet : vnets_) {
+    vnet->Start();
   }
   WaitForExitSignal();
 }
@@ -60,13 +59,13 @@ Tincan::Start()
 void
 Tincan::Shutdown()
 {
-  for(auto const & vnic : vnics_) {
-    vnic->Shutdown();
+  for(auto const & vnet : vnets_) {
+    vnet->Shutdown();
   }
 }
 
 void
-Tincan::WaitForConfigSignal()
+Tincan::WaitForConfig()
 {}
 
 void

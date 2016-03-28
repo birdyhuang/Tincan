@@ -20,46 +20,30 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 */
-#include <map>
-#include <memory>
-#include <vector>
-using namespace std;
-#include "vlink_uid_map.h"
-#include "vnet_peer_map.h"
-#include "remote_peer.h"
+#ifndef TINCAN_VLINK_EVENTS_H_
+#define TINCAN_VLINK_EVENTS_H_
+
 namespace tincan
 {
-enum MapLookupType
+class VlinkEvents: public rtc::MessageHandler
 {
-  IP4,
-  IP6,
-  MAC,
-  UID,
-  MAX_TYPE
-};
-class PeerNetwork
-{
-public:
-  PeerNetwork();
-	~PeerNetwork();
-  void Add(unique_ptr<RemotePeer> remote_peer);
-  RemotePeer & Get(
-    string identifier, 
-    MapLookupType id_type);
+  // Signal handlers for BasicNetworkManager
+  virtual void OnNetworksChanged();
 
-private:
-  //list of remote peer nodes on this virt net
-  vector<RemotePeer> peers_;
-  //map by ip4
-  map<string, RemotePeer> ip4_map;
-  //map by ip6
-  map<string, RemotePeer> ip6_map;
-  //map by mac
-  map<string, RemotePeer> mac_map;
-  //map by uid
-  map<string, RemotePeer> uid_map;
+  // Signal handlers for TransportChannelImpl
+  virtual void OnRequestSignaling(cricket::Transport* transport);
+  virtual void OnRWChangeState(cricket::Transport* transport);
+  virtual void OnCandidatesReady(cricket::Transport* transport,
+    const cricket::Candidates& candidates);
+  virtual void OnCandidatesAllocationDone(cricket::Transport* transport);
+  virtual void OnReadPacket(cricket::TransportChannel* channel,
+    const char* data, size_t len,
+    const rtc::PacketTime& ptime, int flags);
+
+  // Inherited from MessageHandler
+  virtual void OnMessage(rtc::Message* msg);
 
 };
+
 } // namespace tincan
-
-
+#endif // TINCAN_VLINK_EVENTS_H_

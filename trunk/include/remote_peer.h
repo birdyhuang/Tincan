@@ -34,7 +34,7 @@ class RemotePeer
 public:
   RemotePeer(VnetEndpointConfig const & endpoint_cfg);
 	~RemotePeer();
-
+  void SetVirtialLink(unique_ptr<VirtualLink> vlink);
 private:
   struct in_addr virt_ip_;// the virtual IPv4 address that we see
   struct in6_addr virt_ip_6;// the virtual IPv6 address that we see
@@ -44,11 +44,11 @@ private:
   size_t overlay_id;
   string uid_; // 160bit unique identifier
   string fingerprint_;
-  VirtualLink vlink_;
+  unique_ptr<VirtualLink> vlink_;
+  size_t last_time;
 
 //string connection_security;
 //uint16_t port; // The open port on the client that we're connected to
 //string id; // 160bit unique identifier
-//size_t last_time;
 };
 } // namespace tincan

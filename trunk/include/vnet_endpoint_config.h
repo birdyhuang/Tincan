@@ -37,6 +37,7 @@ struct VnetEndpointConfig
 };
 struct LocalVnetEndpointConfig : public VnetEndpointConfig
 {
+  string tap_name;
   string xmpp_url_;
   string xmpp_user_;
   string xmpp_pw_;

@@ -23,10 +23,13 @@
 #include "virtual_network.h"
 namespace tincan
 {
-VirtualNetwork::VirtualNetwork(unique_ptr<LocalVnetEndpointConfig> lvncfg) :
+VirtualNetwork::VirtualNetwork(unique_ptr<LocalVnetEndpointConfig> lvecfg) :
   tdev_(nullptr),
-  config_(lvncfg)
+  xmpp_network_(nullptr),
+  peer_network_(nullptr),
+  config_(move(lvecfg))
 {
+
   tdev_ = new TapDev(
     make_unique<AsyncRead>(
       AsyncRead(make_unique<ReadCompletion>(
@@ -34,42 +37,25 @@ VirtualNetwork::VirtualNetwork(unique_ptr<LocalVnetEndpointConfig> lvncfg) :
     make_unique<AsyncWrite>(
       AsyncWrite((make_unique<WriteCompletion>(
         WriteCompletion(fqw_))))));
+  peer_network_ = new PeerNetwork;
+  xmpp_network_ = new XmppNetwork;
 }
 
 VirtualNetwork::~VirtualNetwork()
 {
-  delete config_;
+  delete xmpp_network_;
+  delete peer_network_;
   delete tdev_;
 }
 void VirtualNetwork::Configure()
 {
   //initialize the Tap Device
-  //tdev_->Open();
+  tdev_->Open(config_->tap_name);
   //tdev_->SetIp4Addr();
   //tdev_->SetIp4Route();
 
-  //Setup the vlink, aka webrtc connection
-  //channel->SignalReadPacket.connect(
-  //  this, &VirtualLink::OnReadPacket);
-
-  //transport->SignalRequestSignaling.connect(
-  //  this, &VirtualLink::OnRequestSignaling);
-
-  //transport->SignalCandidatesReady.connect(
-  //  this, &VirtualLink::OnCandidatesReady);
-
-  //transport->SignalCandidatesAllocationDone.connect(
-  //  this, &VirtualLink::OnCandidatesAllocationDone);
-
-  //transport->SignalReadableState.connect(
-  //  this, &VirtualLink::OnRWChangeState);
-
-  //transport->SignalWritableState.connect(
-  //  this, &VirtualLink::OnRWChangeState);
-
   //free the config as its not needed anymore
-  delete config_;
-  config_ = nullptr;
+  config_.reset();
 }
 void VirtualNetwork::Start()
 {
@@ -82,4 +68,12 @@ void VirtualNetwork::Shutdown()
   tdev_->Down();
 }
 
-} //tincan
+void VirtualNetwork::AddRemotePeer(unique_ptr<VnetEndpointConfig> vecfg)
+{
+  unique_ptr<RemotePeer> rp = make_unique<RemotePeer>(*vecfg.get());
+  unique_ptr<VirtualLink> vl = make_unique<VirtualLink>(*this);
+  rp->SetVirtialLink(move(vl));
+  peer_network_->Add(move(rp));
+}
+
+} //namespace tincan

@@ -39,11 +39,42 @@ class VirtualNetwork {
   void Configure();
   void Start();
   void Shutdown();
+  void AddRemotePeer(unique_ptr<VnetEndpointConfig> vecfg);
+
+
+  // Signal handlers for BasicNetworkManager
+  virtual void OnNetworksChanged();
+
+  // Signal handlers for TransportChannelImpl
+  void OnRequestSignaling(
+    cricket::Transport* transport);
+  void OnRWChangeState(
+    cricket::Transport* transport);
+  void OnCandidatesReady(
+    cricket::Transport* transport,
+    const cricket::Candidates& candidates);
+  void OnCandidatesAllocationDone(
+    cricket::Transport* transport);
+  void OnReadPacket(
+    cricket::TransportChannel* channel,
+    const char* data, 
+    size_t len, 
+    const rtc::PacketTime & ptime, 
+    int flags);
+
+  // Inherited from MessageHandler
+  virtual void OnMessage(
+    rtc::Message* msg);
+
+
 private:
-  XmppNetwork xmpp_network;
+  bool CreateTransport(const std::string & uid, const std::string & fingerprint, int overlay_id, const std::string & stun_server, const std::string & turn_server, const std::string & turn_user, const std::string & turn_pass, const bool sec_enabled);
+
+  XmppNetwork * xmpp_network_;
   TapDev * tdev_;
-  PeerNetwork peer_network_;
+  PeerNetwork * peer_network_;
   unique_ptr<LocalVnetEndpointConfig> config_;
+  shared_ptr<rtc::SSLFingerprint> local_fingerprint_;
 
   rtc::Thread vlink_thread_;
   FrameQueue fqr_, fqw_;

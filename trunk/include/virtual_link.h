@@ -3,6 +3,9 @@
 
 #include "webrtc/p2p/base/transportchannel.h"
 #include "webrtc/base/asyncpacketsocket.h"
+#include "webrtc/p2p/base/p2ptransport.h"
+#include "webrtc/p2p/client/basicportallocator.h"
+#include "vlink_events.h"
 namespace tincan
 {
 class VirtualLink
@@ -10,21 +13,24 @@ class VirtualLink
 public:
   VirtualLink();
   ~VirtualLink();
-  void OnReadPacket(
-    cricket::TransportChannel * channel,
-    const char* data,
-    size_t len,
-    const rtc::PacketTime & ptime,
-    int flags);
+  void Initialize(VlinkEvents & vlink_events);
+
 private:
-  //talk_base::scoped_ptr<cricket::P2PTransport> transport;
-  //talk_base::scoped_ptr<cricket::BasicPortAllocator> port_allocator;
-  //talk_base::scoped_ptr<talk_base::SSLFingerprint> remote_fingerprint;
-  //talk_base::scoped_ptr<cricket::TransportDescription> local_description;
-  //talk_base::scoped_ptr<cricket::TransportDescription> remote_description;
-  //cricket::P2PTransportChannel* channel;
-  //cricket::Candidates candidates;
-  //std::set<std::string> candidate_list;
+  void SetupTransport();
+  void CreateTransport();
+  void RegisterLinkEventHandlers(VlinkEvents & vlink_events);
+
+  unique_ptr<cricket::P2PTransport> transport_;
+  unique_ptr<cricket::BasicPortAllocator> port_allocator_;
+  unique_ptr<rtc::SSLFingerprint> remote_fingerprint_;
+  unique_ptr<cricket::TransportDescription> local_description_;
+  unique_ptr<cricket::TransportDescription> remote_description_;
+  unique_ptr<cricket::P2PTransportChannel> channel_;
+  unique_ptr<cricket::Candidates> candidates_;
+  std::set<std::string> candidate_list_;
+
+  shared_ptr<rtc::SSLFingerprint> local_fingerprint_;
+  string connection_security_;
 };
 
 } //namespace tincan

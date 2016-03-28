@@ -331,6 +331,7 @@
     <ClInclude Include="..\include\tincan_control.h" />
     <ClInclude Include="..\include\udp_control.h" />
     <ClInclude Include="..\include\virtual_network.h" />
+    <ClInclude Include="..\include\vlink_events.h" />
     <ClInclude Include="..\include\vnet_endpoint_config.h" />
     <ClInclude Include="..\include\windows\tapdev_win.h" />
     <ClInclude Include="..\include\windows\win_exception.h" />

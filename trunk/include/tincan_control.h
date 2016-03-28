@@ -30,6 +30,7 @@ class TincanControl
 public:
   TincanControl();
   ~TincanControl();
+  void Start();
 };
 }
 #endif  // TINCAN_TINCAN_CONTROL_H_

@@ -37,9 +37,10 @@ public:
   void Start();
   void Shutdown();
 private:
-  void WaitForConfigSignal();
+  void WaitForConfig();
   void WaitForExitSignal();
   vector<unique_ptr<VirtualNetwork>> vnets_;
+  vector<unique_ptr<LocalVnetEndpointConfig>> lve_cfglist;
   TincanControl control_;
 };
 }
