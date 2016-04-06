@@ -29,7 +29,7 @@
 #if defined(LINUX)
 #include "linux/tapdev_lnx.h"
 #elif defined(OSX)
-#include "mac/tapdev_mac.h"
+#include "osx/tapdev_osx.h"
 #elif defined(_IPOP_WIN)
 #include "windows/tapdev_win.h"
 #endif
@@ -40,7 +40,7 @@ class TapDev : public
 #if defined(LINUX)
   linux::TapDevLnx
 #elif defined(OSX)
-  mac::TapDevMac
+  osx::TapDevOsx
 #elif defined(_IPOP_WIN)
   windows::TapDevWin
 #endif

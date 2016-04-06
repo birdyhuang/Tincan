@@ -28,37 +28,38 @@
 
 namespace tincan {
 
-class TapDevMac : public TapDevInf
+namespace osx {
+    
+class TapDevOsx : public TapDevInf
 {
 public:
-  TapDevMac(
-    AsyncIoCompletion & iocmpl);
+//  TapDevMac(
+//    AsyncIoCompletion & iocmpl);
+    TapDevOsx();
 
-  ~TapDevMac();
+  ~TapDevOsx();
 
-  int Open(
-    const char *device,
-    char *mac);
+  void Open(const string &device);
 
   void Close();
 
-  int Read(
+  void Read(
     TapFrame & frame);
 
-  int Write(
+  void Write(
     TapFrame & frame);
 
-  int Configure(
+  void Configure(
     unsigned long request,
     void* arg);
 
-  int EnableArp();
+  void EnableArp();
 
-  int Up();
+  void Up();
 
-  int Down();
+  void Down();
 
-  int SetMtu(
+  void SetMtu(
     int mtu);
 
   int SetIp4Addr(
@@ -70,28 +71,38 @@ public:
     const char *presentation,
     unsigned int prefix_len);
 
-  int SetIp4Route(
-    const char *presentation,
-    unsigned short prefix_len,
-    unsigned int metric);
+//  int SetIp4Route(
+//    const char *presentation,
+//    unsigned short prefix_len,
+//    unsigned int metric);
+//
+//  int SetIp6Route(
+//    const char *presentation,
+//    unsigned short prefix_len,
+//    unsigned int metric);
+//
+//  int DisableIp6Autoconfig();
+//
+//  int SetIp4ProcOption(const char *option,
+//    const char *value);
+//
+//  int SetIp6ProcOption(
+//    const char *option,
+//    const char *value);
 
-  int SetIp6Route(
-    const char *presentation,
-    unsigned short prefix_len,
-    unsigned int metric);
-
-  int DisableIp6Autoconfig();
-
-  int SetIp4ProcOption(const char *option,
-    const char *value);
-
-  int SetIp6ProcOption(
-    const char *option,
-    const char *value);
+    unique_ptr<BYTE[]> getMacAddress(const string & device_name);
 
 protected:
+    /* static defined in the class, but initialized outside the class */
+    static const char *const  TUN_PATH;
+    static const char *const  PATH_2_IFCONFIG;
+    static const char *const  IFCONFIG;
+    static int fd;
+    static int ipv4_config_sock, ipv6_config_sock;
+    static const int MAX_ADAPTER_ADDRESS_LENGTH;
+    
   int SetFlags();
 };
-
+}  // namespace osx
 }  // namespace tincan
 #endif  // TINCAN_TAPDEV_MAC_H_

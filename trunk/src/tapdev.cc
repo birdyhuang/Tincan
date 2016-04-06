@@ -10,7 +10,7 @@ TapDev::TapDev(
 #elif defined(LINUX)
   TapDevLnx(async_rd), std::move(async_wr_))
 #elif defined(OSX)
-  TapDevMac(async_rd), std::move(async_wr_))
+  TapDevOsx(async_rd), std::move(async_wr_))
 #endif
 {}
 

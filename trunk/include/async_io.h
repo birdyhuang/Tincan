@@ -27,6 +27,15 @@
 #include "tap_frame.h"
 #include "frame_queue.h"
 
+#if defined OSX
+typedef unsigned long DWORD;
+typedef short WCHAR;
+typedef void * HANDLE;
+typedef unsigned char BYTE;
+typedef unsigned short WORD;
+typedef unsigned int BOOL;
+#endif
+
 namespace tincan
 {
 
