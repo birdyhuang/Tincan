@@ -315,7 +315,9 @@
     <ClInclude Include="..\..\external\include\webrtc\video_renderer.h" />
     <ClInclude Include="..\..\external\include\webrtc\video_send_stream.h" />
     <ClInclude Include="..\include\async_io.h" />
+    <ClInclude Include="..\include\control_dispatch.h" />
     <ClInclude Include="..\include\control_inf.h" />
+    <ClInclude Include="..\include\control_listener.h" />
     <ClInclude Include="..\include\domain_socks_control.h" />
     <ClInclude Include="..\include\frame_queue.h" />
     <ClInclude Include="..\include\remote_peer.h" />
@@ -338,6 +340,8 @@
     <ClInclude Include="..\include\xmppnetwork.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\control_dispatch.cpp" />
+    <ClCompile Include="..\src\control_listener.cpp" />
     <ClCompile Include="..\src\peer_network.cc" />
     <ClCompile Include="..\src\tapdev.cc" />
     <ClCompile Include="..\src\tapdev_lnx.cc" />
@@ -447,6 +451,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies);IPHLPAPI.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Users\kcratie\Vol1\workspace\kcratie\Tincan\external\lib\win;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

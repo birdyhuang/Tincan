@@ -22,15 +22,27 @@
 */
 #ifndef TINCAN_TINCAN_CONTROL_H_
 #define TINCAN_TINCAN_CONTROL_H_
+#include <string>
+#include "webrtc/base/json.h"
 
 namespace tincan {
+using namespace std;
+using namespace rtc;
 
 class TincanControl
 {
 public:
-  TincanControl();
+  TincanControl(const char * const data, const size_t len);
   ~TincanControl();
-  void Start();
+  string Name() const;
+  const unsigned char Type() const;
+  Json::Value AsJson();
+private:
+  string request;
+  const char * const data_;
+  const size_t data_len_;
+  size_t INDEX_VERSION = 0;
+  size_t INDEX_TYPE = 1;
 };
-}
+} // namespace tincan
 #endif  // TINCAN_TINCAN_CONTROL_H_

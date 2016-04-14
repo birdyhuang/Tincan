@@ -996,6 +996,12 @@
     <ClInclude Include="..\include\vlink_events.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\control_listener.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\control_dispatch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\peer_network.cc">
@@ -1026,6 +1032,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\virtual_network.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\control_listener.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\control_dispatch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
