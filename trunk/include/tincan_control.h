@@ -36,9 +36,9 @@ public:
   ~TincanControl();
   string Name() const;
   const unsigned char Type() const;
-  Json::Value AsJson();
+  void AsJson(Json::Value & dict);
 private:
-  string request;
+  string message_;
   const char * const data_;
   const size_t data_len_;
   size_t INDEX_VERSION = 0;

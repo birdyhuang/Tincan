@@ -52,64 +52,64 @@ void VirtualLink::CreateTransport()
    std::string uid;  std::string fingerprint; int overlay_id;
   std::string stun_server;  std::string turn_server;
   std::string turn_user;  std::string turn_pass;
-  bool sec_enabled;
+  bool sec_enabled = true;
   
   rtc::SocketAddress stun_addr;
   stun_addr.FromString(stun_server);
-  port_allocator.reset(new cricket::BasicPortAllocator(
-    &network_manager_, &packet_factory_, stun_addr));
-  port_allocator->set_flags(kFlags);
-  SetRelay(peer_state.get(), turn_server, turn_user, turn_pass);
+  //port_allocator.reset(new cricket::BasicPortAllocator(
+  //  &network_manager_, &packet_factory_, stun_addr));
+  //port_allocator->set_flags(kFlags);
+  //SetRelay(peer_state.get(), turn_server, turn_user, turn_pass);
 
   int component = cricket::ICE_CANDIDATE_COMPONENT_DEFAULT;
   if(sec_enabled && local_fingerprint_ &&
     fingerprint.compare(kFprNull) != 0) {
-    transport = make_unique<DtlsP2PTransport>(link_setup_thread_, packet_handling_thread_,
-      content_name_, peer_state->port_allocator.get(), identity_.get());
+    //transport = make_unique<DtlsP2PTransport>(link_setup_thread_, packet_handling_thread_,
+    //  content_name_, peer_state->port_allocator.get(), identity_.get());
 
-    cricket::DtlsTransportChannelWrapper* dtls_channel =
-      static_cast<cricket::DtlsTransportChannelWrapper*>(
-        transport->CreateChannel(component));
+    //cricket::DtlsTransportChannelWrapper* dtls_channel =
+    //  static_cast<cricket::DtlsTransportChannelWrapper*>(
+    //    transport->CreateChannel(component));
 
-    channel_ = static_cast<cricket::P2PTransportChannel*>(
-      dtls_channel->channel());
+    //channel_ = static_cast<cricket::P2PTransportChannel*>(
+    //  dtls_channel->channel());
     //connection_security_ = "dtls";
   }
   else {
-    transport_.reset(new cricket::P2PTransport(
-      link_setup_thread_, packet_handling_thread_, content_name_,
-      peer_state->port_allocator.get()));
-    channel_ = static_cast<cricket::P2PTransportChannel*>(
-      transport->CreateChannel(component););
+    //transport_.reset(new cricket::P2PTransport(
+    //  link_setup_thread_, packet_handling_thread_, content_name_,
+    //  peer_state->port_allocator.get()));
+    //channel_ = static_cast<cricket::P2PTransportChannel*>(
+    //  transport->CreateChannel(component););
     //connection_security_ = "none";
   }
 
 }
 
-bool VirtualLink::SetRelay(
-  PeerState* peer_state, const std::string& turn_server,
-  const std::string& username, const std::string& password)
-{
-  if(turn_server.empty() || username.empty()) return false;
-  talk_base::SocketAddress turn_addr;
-  turn_addr.FromString(turn_server);
-  cricket::RelayServerConfig relay_config_udp(cricket::RELAY_TURN);
-  cricket::RelayServerConfig relay_config_tcp(cricket::RELAY_TURN);
-  relay_config_udp.ports.push_back(cricket::ProtocolAddress(
-    turn_addr, cricket::PROTO_UDP));
-  relay_config_udp.credentials.username = username;
-  relay_config_udp.credentials.password = password;
-  relay_config_tcp.ports.push_back(cricket::ProtocolAddress(
-    turn_addr, cricket::PROTO_TCP));
-  relay_config_tcp.credentials.username = username;
-  relay_config_tcp.credentials.password = password;
-  if(!relay_config_udp.credentials.username.empty()) {
-    peer_state->port_allocator->AddRelay(relay_config_udp);
-    // TODO - TCP relaying needs more testing
-    //peer_state->port_allocator->AddRelay(relay_config_tcp);
-  }
-  LOG_TS(INFO) << "TURN " << turn_addr.ToString();
-  return true;
-}
+//bool VirtualLink::SetRelay(
+//  PeerState* peer_state, const std::string& turn_server,
+//  const std::string& username, const std::string& password)
+//{
+//  if(turn_server.empty() || username.empty()) return false;
+//  talk_base::SocketAddress turn_addr;
+//  turn_addr.FromString(turn_server);
+//  cricket::RelayServerConfig relay_config_udp(cricket::RELAY_TURN);
+//  cricket::RelayServerConfig relay_config_tcp(cricket::RELAY_TURN);
+//  relay_config_udp.ports.push_back(cricket::ProtocolAddress(
+//    turn_addr, cricket::PROTO_UDP));
+//  relay_config_udp.credentials.username = username;
+//  relay_config_udp.credentials.password = password;
+//  relay_config_tcp.ports.push_back(cricket::ProtocolAddress(
+//    turn_addr, cricket::PROTO_TCP));
+//  relay_config_tcp.credentials.username = username;
+//  relay_config_tcp.credentials.password = password;
+//  if(!relay_config_udp.credentials.username.empty()) {
+//    peer_state->port_allocator->AddRelay(relay_config_udp);
+//    // TODO - TCP relaying needs more testing
+//    //peer_state->port_allocator->AddRelay(relay_config_tcp);
+//  }
+//  LOG_TS(INFO) << "TURN " << turn_addr.ToString();
+//  return true;
+//}
 
 }

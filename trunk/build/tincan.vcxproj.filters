@@ -51,12 +51,6 @@
     <ClInclude Include="..\include\tapdev.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\tapdev_lnx.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\tapdev_mac.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\tincan.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1008,12 +1002,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\tapdev.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\tapdev_lnx.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\tapdev_mac.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\tincan.cc">

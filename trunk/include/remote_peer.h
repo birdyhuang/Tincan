@@ -24,9 +24,9 @@
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <stdint.h>
-#endif // defined(windows)
+#endif // defined(_IPOP_WIN)
 #include "virtual_link.h"
-
+#include "vnet_endpoint_config.h"
 namespace tincan
 {
 class RemotePeer

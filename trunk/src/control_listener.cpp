@@ -82,7 +82,8 @@ ControlListener::ReadPacketHandler(
 {
 
   try {
-    control_dispatch_(TincanControl(data, len));
+    TincanControl ctrl(data, len);
+    control_dispatch_(ctrl);
   }
   catch(exception & e) {
     e.what();

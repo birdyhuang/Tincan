@@ -71,7 +71,7 @@ void VirtualNetwork::Shutdown()
 void VirtualNetwork::AddRemotePeer(unique_ptr<VnetEndpointConfig> vecfg)
 {
   unique_ptr<RemotePeer> rp = make_unique<RemotePeer>(*vecfg.get());
-  unique_ptr<VirtualLink> vl = make_unique<VirtualLink>(*this);
+  unique_ptr<VirtualLink> vl = make_unique<VirtualLink>();
   rp->SetVirtialLink(move(vl));
   peer_network_->Add(move(rp));
 }

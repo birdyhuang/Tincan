@@ -24,11 +24,13 @@
 #define TINCAN_CONTROL_LISTENER_H_
 
 #include <memory>
+#pragma warning(disable:4996)
 #include "webrtc/base/socketaddress.h"
 #include "webrtc/p2p/base/basicpacketsocketfactory.h"
 #include "webrtc/base/logging.h"
 #include "webrtc/base/sigslot.h"
 #include "webrtc/base/asyncpacketsocket.h"
+#pragma warning(default:4996)
 #include "control_dispatch.h"
 namespace tincan
 {

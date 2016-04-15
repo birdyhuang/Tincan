@@ -24,6 +24,8 @@
 #define TINCAN_ASYNCIO_H_
 
 #include <memory>
+#include <Winsock2.h>
+#include <minwinbase.h>
 #include "tap_frame.h"
 #include "frame_queue.h"
 

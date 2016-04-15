@@ -31,12 +31,13 @@ TincanControl::TincanControl(
   data_len_(len)
 {
   //todo: kIpopVer
-  int kIpopVer;
+  int kIpopVer=0;
   if(data[INDEX_VERSION] != kIpopVer) {
     string msg = "Invalid version stamp (byte zero) in control message:";
     msg.append(data);
     throw exception(msg.c_str());
   }
+  message_.assign(data_, 2, data_len_);
 }
 
 TincanControl::~TincanControl()
@@ -53,17 +54,15 @@ const unsigned char TincanControl::Type() const
   return data_[INDEX_TYPE];
 }
 
-Json::Value 
-TincanControl::AsJson()
+void
+TincanControl::AsJson(Json::Value & dict)
 {
-  string message(data_, 2, data_len_);
   Json::Reader reader;
-  Json::Value dict;
-  if(!reader.parse(message, dict)) {
+
+  if(!reader.parse(message_, dict)) {
     string errmsg = "{\"error\":\"json parsing failed\"}";
     throw exception(errmsg.c_str());
   }
-  return dict;
-  // TODO: insert return statement here
+  return;
 }
 } // namespace tincan

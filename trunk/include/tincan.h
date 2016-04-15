@@ -24,7 +24,9 @@
 #include <memory>
 #include <vector>
 #include "virtual_network.h"
-#include "tincan_control.h"
+#include "control_listener.h"
+#include "control_dispatch.h"
+
 namespace tincan {
 using namespace std;
 
@@ -41,6 +43,7 @@ private:
   void WaitForExitSignal();
   vector<unique_ptr<VirtualNetwork>> vnets_;
   vector<unique_ptr<LocalVnetEndpointConfig>> lve_cfglist;
-  TincanControl control_;
+  ControlListener * ctrl_listener;
+  ControlDispatch * ctrl_dispatch;
 };
 }

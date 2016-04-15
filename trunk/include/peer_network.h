@@ -24,8 +24,6 @@
 #include <memory>
 #include <vector>
 using namespace std;
-#include "vlink_uid_map.h"
-#include "vnet_peer_map.h"
 #include "remote_peer.h"
 namespace tincan
 {
@@ -43,21 +41,21 @@ public:
   PeerNetwork();
 	~PeerNetwork();
   void Add(unique_ptr<RemotePeer> remote_peer);
-  RemotePeer & Get(
+  unique_ptr<RemotePeer> Get(
     string identifier, 
     MapLookupType id_type);
 
 private:
   //list of remote peer nodes on this virt net
-  vector<RemotePeer> peers_;
+  vector<unique_ptr<RemotePeer>> peers_;
   //map by ip4
-  map<string, RemotePeer> ip4_map;
+  map<string, unique_ptr<RemotePeer>> ip4_map;
   //map by ip6
-  map<string, RemotePeer> ip6_map;
+  map<string, unique_ptr<RemotePeer>> ip6_map;
   //map by mac
-  map<string, RemotePeer> mac_map;
+  map<string, unique_ptr<RemotePeer>> mac_map;
   //map by uid
-  map<string, RemotePeer> uid_map;
+  map<string, unique_ptr<RemotePeer>> uid_map;
 
 };
 } // namespace tincan

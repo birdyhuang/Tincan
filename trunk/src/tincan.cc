@@ -35,15 +35,14 @@ void
 Tincan::Initialize()
 {
   //Start tincan control to get config from Controller
-  control_.Start();
   
   //...
   WaitForConfig();
   //parse config and create a vnic for each virtual interface that is specified
   for(auto & lvecfg : lve_cfglist) {
-    auto vnet = make_unique<VirtualNetwork>(lvecfg.release());
+    auto vnet = make_unique<VirtualNetwork>(move(lvecfg));
     vnet->Configure();
-    vnets_.push_back(vnet);
+    vnets_.push_back(move(vnet));
   }
 }
 

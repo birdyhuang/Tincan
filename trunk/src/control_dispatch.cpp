@@ -25,6 +25,7 @@
 #include <map>
 #include <string>
 #include "webrtc/base/json.h"
+#include "webrtc/base/logging.h"
 
 namespace tincan
 {
@@ -50,20 +51,20 @@ map<string, int> ControlDispatch::control_map{
 ControlDispatch::ControlDispatch()
 {
   map<string, void (ControlDispatch::*)(TincanControl & control)> control_map2 = {
-  { "register_svc", RegisterService },
-  { "create_link", CreateLink },
-  { "set_local_ip", SetLocalIp },
-  { "set_remote_ip", SetRemoteIp },
-  { "trim_link", TrimLink },
-  { "set_cb_endpoint", SetCbEndpoint },
-  { "get_state", GetState },
-  { "set_logging", SetLogLevel },
-  { "set_translation", SetTranslation },
-  { "set_switchmode", SetSwitchmode },
-  { "set_trimpolicy", SetTrimPolicy },
-  { "echo_request", EchoRequest },
-  { "echo_reply", EchoReply },
-  { "set_network_ignore_list", SetNetworkIgnoreList }
+  { "register_svc", &ControlDispatch::RegisterService },
+  { "create_link", &ControlDispatch::CreateLink },
+  { "set_local_ip", &ControlDispatch::SetLocalIp },
+  { "set_remote_ip", &ControlDispatch::SetRemoteIp },
+  { "trim_link", &ControlDispatch::TrimLink },
+  { "set_cb_endpoint", &ControlDispatch::SetCbEndpoint },
+  { "get_state", &ControlDispatch::GetState },
+  { "set_logging", &ControlDispatch::SetLogLevel },
+  { "set_translation", &ControlDispatch::SetTranslation },
+  { "set_switchmode", &ControlDispatch::SetSwitchmode },
+  { "set_trimpolicy", &ControlDispatch::SetTrimPolicy },
+  { "echo_request", &ControlDispatch::EchoRequest },
+  { "echo_reply", &ControlDispatch::EchoReply },
+  { "set_network_ignore_list", &ControlDispatch::SetNetworkIgnoreList }
 };
 }
 
@@ -149,7 +150,8 @@ void
 ControlDispatch::CreateLink(
   TincanControl & control)
 {
-  Json::Value & req = control.AsJson();
+  Json::Value req;
+  control.AsJson(req);
   int overlay_id = req["overlay_id"].asInt();
   std::string uid = req["uid"].asString();
   std::string fpr = req["fpr"].asString();
@@ -165,7 +167,8 @@ void
 ControlDispatch::SetLocalIp(
   TincanControl & control)
 {
-  Json::Value & req = control.AsJson();
+  Json::Value req;
+  control.AsJson(req);
   std::string uid = req["uid"].asString();
   std::string ip4 = req["ip4"].asString();
   std::string ip6 = req["ip6"].asString();
@@ -177,7 +180,8 @@ ControlDispatch::SetLocalIp(
 }
 void ControlDispatch::SetRemoteIp(TincanControl & control)
 {
-  Json::Value & req = control.AsJson();
+  Json::Value req;
+  control.AsJson(req);
   std::string uid = req["uid"].asString();
   std::string ip4 = req["ip4"].asString();
   std::string ip6 = req["ip6"].asString();
@@ -185,33 +189,37 @@ void ControlDispatch::SetRemoteIp(TincanControl & control)
 }
 void ControlDispatch::TrimLink(TincanControl & control)
 {
-  Json::Value & req = control.AsJson();
+  Json::Value req;
+  control.AsJson(req);
   std::string uid = req["uid"].asString();
   //todo
 }
 void ControlDispatch::SetCbEndpoint(TincanControl & control)
 {
-  Json::Value & req = control.AsJson();
+  Json::Value req;
+  control.AsJson(req);
   std::string ip = req["ip"].asString();
   int port = req["port"].asInt();
   //todo
 }
 void ControlDispatch::GetState(TincanControl & control)
 {
-  Json::Value & req = control.AsJson();
+  Json::Value req;
+  control.AsJson(req);
   std::string uid = req["uid"].asString();
   bool get_stats = req["stats"].asBool();
   //todo: SendState(uid, get_stats, addr);
 }
 void ControlDispatch::SetLogLevel(TincanControl & control)
 {
-  Json::Value & req = control.AsJson();
+  Json::Value req;
+  control.AsJson(req);
   int logging = req["logging"].asInt();
   if(logging == 0) {
-    rtc::LogMessage::LogToDebug(rtc::LS_ERROR + 1);
+    rtc::LogMessage::LogToDebug(rtc::LS_ERROR);
   }
   else if(logging == 1) {
-    rtc::LogMessage::LogToDebug(rtc::LS_ERROR);
+    rtc::LogMessage::LogToDebug(rtc::LS_WARNING);
   }
   else if(logging == 2) {
     rtc::LogMessage::LogToDebug(rtc::LS_INFO);
@@ -223,39 +231,45 @@ void ControlDispatch::SetLogLevel(TincanControl & control)
 }
 void ControlDispatch::SetTranslation(TincanControl & control)
 {
-  Json::Value & req = control.AsJson();
+  Json::Value req;
+  control.AsJson(req);
   int translate = req["translate"].asInt();
   //todo
 }
 void ControlDispatch::SetSwitchmode(TincanControl & control)
 {
-  Json::Value & req = control.AsJson();
+  Json::Value req;
+  control.AsJson(req);
   int switchmode = req["switchmode"].asInt();
   //todo
 }
 void ControlDispatch::SetTrimPolicy(TincanControl & control)
 {
-  Json::Value & req = control.AsJson();
+  Json::Value req;
+  control.AsJson(req);
   bool trim = req["trim_enabled"].asBool();
   //todo
 }
 void ControlDispatch::EchoRequest(TincanControl & control)
 {
-  Json::Value & req = control.AsJson();
+  Json::Value req;
+  control.AsJson(req);
   std::string msg = req["msg"].asString();
   Json::Value local_state;
   local_state["type"] = "echo_request";
   local_state["msg"] = msg;
-  std::string req = local_state.toStyledString();
+  req = local_state.toStyledString();
   //todo: SendTo(req.c_str(), req.size(), addr);
 }
 void ControlDispatch::EchoReply(TincanControl & control)
 {
-  Json::Value & req = control.AsJson();
+  Json::Value req;
+  control.AsJson(req);
 }
 void ControlDispatch::SetNetworkIgnoreList(TincanControl & control)
 {
-  Json::Value & req = control.AsJson();
+  Json::Value req;
+  control.AsJson(req);
   int count = req["network_ignore_list"].size();
   Json::Value network_ignore_list = req["network_ignore_list"];
   //LOG_TS(INFO) << "Listed network device is ignored for TinCan connection"
@@ -266,5 +280,5 @@ void ControlDispatch::SetNetworkIgnoreList(TincanControl & control)
   }
   //todo: manager_.set_network_ignore_list(ignore_list);
 }
-}
+
 }  // namespace tincan

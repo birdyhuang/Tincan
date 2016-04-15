@@ -1,11 +1,16 @@
 #ifndef _TINCAN_TINCAN_LINK_H_
 #define _TINCAN_TINCAN_LINK_H_
 
-#include "webrtc/p2p/base/transportchannel.h"
+#pragma warning( push )
+#pragma warning(disable:4996)
+#pragma warning(disable:4100)
+#include "webrtc/p2p/base/p2ptransportchannel.h"
 #include "webrtc/base/asyncpacketsocket.h"
 #include "webrtc/p2p/base/p2ptransport.h"
 #include "webrtc/p2p/client/basicportallocator.h"
+#pragma warning( pop )
 #include "vlink_events.h"
+
 namespace tincan
 {
 class VirtualLink
