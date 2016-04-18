@@ -52,6 +52,9 @@ public:
   ControlDispatch();
   ~ControlDispatch();
   void operator () (TincanControl & control);
+  void SetDispatchToTincanInf(DispatchToTincanInf * dtot);
+  void SetDispatchToListenerInf(DispatchToListenerInf * dtol);
+
 private:
   void RegisterService(TincanControl & control);
   void CreateLink(TincanControl & control);
@@ -68,8 +71,12 @@ private:
   void EchoReply(TincanControl & control);
   void SetNetworkIgnoreList(TincanControl & control);
 
+  void CreateVNet(TincanControl & control);
+
   static map<std::string, int>control_map;
   map<std::string, void (ControlDispatch::*)(TincanControl & control)>control_map2;
+  DispatchToListenerInf * dtol_;
+  DispatchToTincanInf * dtot_;
 
 };
 }  // namespace tincan

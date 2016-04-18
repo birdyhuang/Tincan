@@ -28,6 +28,7 @@
 #include "peer_network.h"
 #include "vnet_endpoint_config.h"
 #include "xmppnetwork.h"
+#include "controller_handle.h"
 #include "webrtc/base/thread.h"
 
 namespace tincan {
@@ -75,7 +76,7 @@ private:
   PeerNetwork * peer_network_;
   unique_ptr<LocalVnetEndpointConfig> config_;
   shared_ptr<rtc::SSLFingerprint> local_fingerprint_;
-
+  shared_ptr<ControllerHandle>  CtrlHandle;
   rtc::Thread vlink_thread_;
   FrameQueue fqr_, fqw_;
 };

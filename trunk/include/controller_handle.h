@@ -20,30 +20,26 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 */
+#ifndef TINCAN_CONTROLLER_HANDLE_H_
+#define TINCAN_CONTROLLER_HANDLE_H_
 
-#include <memory>
-#include <vector>
-#include "virtual_network.h"
-#include "control_listener.h"
-#include "control_dispatch.h"
-
+#include <string>
+#pragma warning(disable:4996)
+#include "webrtc/base/asyncpacketsocket.h"
+#pragma warning(default:4996)
 namespace tincan {
 using namespace std;
+  class ControllerHandle
+  {
+  public:
+    virtual void Deliver(
+      const char * packet,
+      size_t packet_len) = 0;
 
-class Tincan :
-  public DispatchToTincanInf
-{
-public:
-  Tincan();
-  ~Tincan();
-  void Start();
-  void Shutdown();
-  //DispatchToTincanInf interface
-  void CreateVNet(unique_ptr<LocalVnetEndpointConfig> lvecfg);
-private:
-  void WaitForConfig();
-  void WaitForExitSignal();
-  vector<unique_ptr<VirtualNetwork>> vnets_;
-  ControlListener * ctrl_listener_;
-};
-}
+    virtual void Deliver(
+      const string & uid,
+      const string & type,
+      const string & msg) = 0;
+  };
+}  // namespace tincan
+#endif  // TINCAN_CONTROLLER_HANDLE_H_

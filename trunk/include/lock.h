@@ -20,30 +20,23 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 */
+/**************************************************************************
+  Wrappers for a few useful synchronization primitives. Simply instantiate
+  a Synchronized obejct with a Mutex or CriticalSection. All the code in the
+  scope of that object will be serialized on your Lock.
+  Lock - Abstract base class
+***************************************************************************/
 
-#include <memory>
-#include <vector>
-#include "virtual_network.h"
-#include "control_listener.h"
-#include "control_dispatch.h"
+#if !defined (_TINCAN_LOCK_H_)
+#define _TINCAN_LOCK_H_
 
-namespace tincan {
-using namespace std;
-
-class Tincan :
-  public DispatchToTincanInf
+namespace tincan
+{
+class Lock
 {
 public:
-  Tincan();
-  ~Tincan();
-  void Start();
-  void Shutdown();
-  //DispatchToTincanInf interface
-  void CreateVNet(unique_ptr<LocalVnetEndpointConfig> lvecfg);
-private:
-  void WaitForConfig();
-  void WaitForExitSignal();
-  vector<unique_ptr<VirtualNetwork>> vnets_;
-  ControlListener * ctrl_listener_;
+  virtual void lock() = 0;
+  virtual void unlock() = 0;
 };
-}
+} // namespace tincan
+#endif // _TINCAN_LOCK_H_

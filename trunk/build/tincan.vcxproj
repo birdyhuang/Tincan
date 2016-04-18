@@ -315,13 +315,16 @@
     <ClInclude Include="..\..\external\include\webrtc\video_renderer.h" />
     <ClInclude Include="..\..\external\include\webrtc\video_send_stream.h" />
     <ClInclude Include="..\include\async_io.h" />
+    <ClInclude Include="..\include\controller_handle.h" />
     <ClInclude Include="..\include\control_dispatch.h" />
     <ClInclude Include="..\include\control_inf.h" />
     <ClInclude Include="..\include\control_listener.h" />
     <ClInclude Include="..\include\domain_socks_control.h" />
     <ClInclude Include="..\include\frame_queue.h" />
+    <ClInclude Include="..\include\lock.h" />
     <ClInclude Include="..\include\remote_peer.h" />
     <ClInclude Include="..\include\peer_network.h" />
+    <ClInclude Include="..\include\synchronized.h" />
     <ClInclude Include="..\include\tapdev.h" />
     <ClInclude Include="..\include\tapdev_inf.h" />
     <ClInclude Include="..\include\tap_frame.h" />
@@ -333,11 +336,13 @@
     <ClInclude Include="..\include\virtual_network.h" />
     <ClInclude Include="..\include\vlink_events.h" />
     <ClInclude Include="..\include\vnet_endpoint_config.h" />
+    <ClInclude Include="..\include\windows\synchronized_win.h" />
     <ClInclude Include="..\include\windows\tapdev_win.h" />
     <ClInclude Include="..\include\windows\win_exception.h" />
     <ClInclude Include="..\include\xmppnetwork.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\include\windows\synchronized_win.cc" />
     <ClCompile Include="..\src\control_dispatch.cpp" />
     <ClCompile Include="..\src\control_listener.cpp" />
     <ClCompile Include="..\src\peer_network.cc" />

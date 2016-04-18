@@ -996,6 +996,18 @@
     <ClInclude Include="..\include\control_dispatch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\controller_handle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\synchronized.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\lock.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\windows\synchronized_win.h">
+      <Filter>Header Files\windows</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\peer_network.cc">
@@ -1027,6 +1039,9 @@
     </ClCompile>
     <ClCompile Include="..\src\control_dispatch.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\windows\synchronized_win.cc">
+      <Filter>Source Files\windows</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

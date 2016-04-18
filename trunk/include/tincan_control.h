@@ -22,12 +22,30 @@
 */
 #ifndef TINCAN_TINCAN_CONTROL_H_
 #define TINCAN_TINCAN_CONTROL_H_
+#include <memory>
 #include <string>
+#include "vnet_endpoint_config.h"
 #include "webrtc/base/json.h"
+#pragma warning(disable:4996)
+#include "webrtc/base/socketaddress.h"
+#pragma warning(default:4996)
 
 namespace tincan {
 using namespace std;
 using namespace rtc;
+
+class DispatchToListenerInf
+{
+public:
+  virtual void SetCtrlCb(
+    unique_ptr<SocketAddress> controller_addr) = 0;
+};
+
+class DispatchToTincanInf
+{
+public:
+  virtual void CreateVNet(unique_ptr<LocalVnetEndpointConfig> lvecfg) = 0;
+};
 
 class TincanControl
 {

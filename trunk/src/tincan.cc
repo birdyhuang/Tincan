@@ -25,33 +25,23 @@
 namespace tincan
 {
 
-Tincan::Tincan()
+Tincan::Tincan() :
+  ctrl_listener_(nullptr)
 {}
 
 Tincan::~Tincan()
-{}
-
-void
-Tincan::Initialize()
 {
-  //Start tincan control to get config from Controller
-  
-  //...
-  WaitForConfig();
-  //parse config and create a vnic for each virtual interface that is specified
-  for(auto & lvecfg : lve_cfglist) {
-    auto vnet = make_unique<VirtualNetwork>(move(lvecfg));
-    vnet->Configure();
-    vnets_.push_back(move(vnet));
-  }
+  delete ctrl_listener_;
 }
 
 void
 Tincan::Start()
 {
-  for(auto const & vnet : vnets_) {
-    vnet->Start();
-  }
+  //Start tincan control to get config from Controller
+  unique_ptr<ControlDispatch>ctrl_dispatch(new ControlDispatch);
+  ctrl_dispatch->SetDispatchToTincanInf(this);
+  ctrl_listener_ = new ControlListener(move(ctrl_dispatch));
+
   WaitForExitSignal();
 }
 
@@ -61,6 +51,14 @@ Tincan::Shutdown()
   for(auto const & vnet : vnets_) {
     vnet->Shutdown();
   }
+}
+
+void Tincan::CreateVNet(unique_ptr<LocalVnetEndpointConfig> lvecfg)
+{  
+  auto vnet = make_unique<VirtualNetwork>(move(lvecfg));
+  vnet->Configure();
+  vnets_.push_back(move(vnet));
+  vnet->Start();
 }
 
 void

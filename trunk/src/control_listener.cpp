@@ -40,35 +40,31 @@ static const char kICCControl = 0x03; //Intercontroller connection header
 static const char kICCPacket = 0x04; //Intercontroller connection header
 //end todo
 
-ControlListener::ControlListener(ControlDispatch & control_dispatch) :
-  control_dispatch_(control_dispatch),
+ControlListener::ControlListener(unique_ptr<ControlDispatch> control_dispatch) :
+  control_dispatch_(move(control_dispatch)),
   socket_(nullptr),
-  socket6_(nullptr),
-  signal_thread_(nullptr),
+  //socket6_(nullptr),
+  //signal_thread_(nullptr),
   packet_options_(DSCP_DEFAULT)
 {
-  signal_thread_ = Thread::Current();
+  //signal_thread_ = Thread::Current();
+  control_dispatch_->SetDispatchToListenerInf(this);
   BasicPacketSocketFactory packet_factory;
+  //TODO: check for IPv6 capability
   socket_ = packet_factory.CreateUdpSocket(
-    SocketAddress(kLocalHost, tincan::kUdpPort), 0, 0);
-  socket_->SignalReadPacket.connect(this, &ControlListener::ReadPacketHandler);
-  
-  socket6_ = packet_factory.CreateUdpSocket(
     SocketAddress(kLocalHost6, tincan::kUdpPort), 0, 0);
-  socket6_->SignalReadPacket.connect(this, &ControlListener::ReadPacketHandler);
-  // todo: manager_.set_forward_socket(socket6_.get());
+  socket_->SignalReadPacket.connect(this, &ControlListener::ReadPacketHandler);
+  //Use IPV4 if no IPv6 installed
+  //socket_ = packet_factory.CreateUdpSocket(
+  //  SocketAddress(kLocalHost, tincan::kUdpPort), 0, 0);
+ // socket_->SignalReadPacket.connect(this, &ControlListener::ReadPacketHandler);
 }
-
 
 ControlListener::~ControlListener()
 {
   if(socket_) {
     delete socket_;
     socket_ = nullptr;
-  }
-  if(socket6_) {
-    delete socket6_;
-    socket6_ = nullptr;
   }
 }
 
@@ -83,10 +79,51 @@ ControlListener::ReadPacketHandler(
 
   try {
     TincanControl ctrl(data, len);
-    control_dispatch_(ctrl);
+    (*control_dispatch_)(ctrl);
   }
   catch(exception & e) {
     e.what();
   }
 }
+//
+//Implementation of ControllerHandle Interface
+void ControlListener::Deliver(
+  const string & uid,
+  const string & type,
+  const string & data)
+{
+  Json::Value json(Json::objectValue);
+  json["uid"] = uid;
+  json["data"] = data;
+  json["type"] = type;
+  std::string msg = json.toStyledString();
+  //todo: add tincan header before sending to Controller
+  socket_->SendTo(msg.c_str(), msg.length(), *controller_addr_.get(), packet_options_);
+}
+
+void ControlListener::Deliver(
+  const char * packet,
+  size_t packet_len)
+{
+  //todo: add tincan header before sending to Controller
+  socket_->SendTo(packet, packet_len, *controller_addr_.get(), packet_options_);
+
+}
+// end Implementation of ControllerHandle Interface
+//
+
+//
+//Dispatch to Listener Interface Implementation
+void 
+ControlListener::SetCtrlCb(
+  unique_ptr<SocketAddress> controller_addr)
+{
+  controller_addr_ = move(controller_addr);
+}
+ControllerHandle & ControlListener::GetControllerHandle()
+{
+  return *this;
+}
+// end Dispatch to Listener Interface Implementation
+//
 }  // namespace tincan

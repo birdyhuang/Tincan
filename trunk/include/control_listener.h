@@ -23,6 +23,7 @@
 #ifndef TINCAN_CONTROL_LISTENER_H_
 #define TINCAN_CONTROL_LISTENER_H_
 
+#include "controller_handle.h"
 #include <memory>
 #pragma warning(disable:4996)
 #include "webrtc/base/socketaddress.h"
@@ -37,11 +38,12 @@ namespace tincan
 using namespace std;
 using namespace rtc;
 class ControlListener : 
-  //public PeerSignalSenderInterface,
+  public ControllerHandle,
+  public DispatchToListenerInf,
   public sigslot::has_slots<>
 {
 public:
-  ControlListener(ControlDispatch & control_dispatch);
+  ControlListener(unique_ptr<ControlDispatch> control_dispatch);
   ~ControlListener();
   void ReadPacketHandler(
     AsyncPacketSocket * socket,
@@ -49,12 +51,28 @@ public:
     size_t len,
     const SocketAddress & addr,
     const PacketTime & ptime);
+
+  //ControllerHandle implementation
+  void Deliver(
+    const char * packet,
+    size_t packet_len);
+
+  void Deliver(
+    const string & uid,
+    const string & type,
+    const string & msg);
+
+  //Dispatch to Listener Interface Implementation
+  void SetCtrlCb(
+    unique_ptr<SocketAddress> controller_addr
+    );
+  ControllerHandle & GetControllerHandle();
 private:
-  ControlDispatch & control_dispatch_;
-  SocketAddress remote_addr_;
+  unique_ptr<ControlDispatch> control_dispatch_;
   AsyncPacketSocket * socket_;
-  AsyncPacketSocket * socket6_;
-  Thread *signal_thread_;
+  unique_ptr<SocketAddress> controller_addr_;
+  //AsyncPacketSocket * socket6_;
+  //Thread *signal_thread_;
   PacketOptions packet_options_;
 
 };

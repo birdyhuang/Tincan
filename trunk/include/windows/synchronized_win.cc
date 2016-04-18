@@ -20,30 +20,64 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 */
+#include "synchronized_win.h"
+#if defined(_IPOP_WIN)
 
-#include <memory>
-#include <vector>
-#include "virtual_network.h"
-#include "control_listener.h"
-#include "control_dispatch.h"
-
-namespace tincan {
-using namespace std;
-
-class Tincan :
-  public DispatchToTincanInf
+namespace tincan
 {
-public:
-  Tincan();
-  ~Tincan();
-  void Start();
-  void Shutdown();
-  //DispatchToTincanInf interface
-  void CreateVNet(unique_ptr<LocalVnetEndpointConfig> lvecfg);
-private:
-  void WaitForConfig();
-  void WaitForExitSignal();
-  vector<unique_ptr<VirtualNetwork>> vnets_;
-  ControlListener * ctrl_listener_;
-};
+namespace windows
+{
+
+MutexWin::MutexWin()
+{
+  mutex = ::CreateMutex(0, 0, 0);
 }
+
+MutexWin::~MutexWin()
+{
+  ::CloseHandle(mutex);
+}
+
+void MutexWin::lock()
+{
+  if(::WaitForSingleObject(mutex, INFINITE) == WAIT_ABANDONED) {}
+}
+
+void MutexWin::unlock()
+{
+  if(!::ReleaseMutex(mutex)) {}
+}
+
+CriticalSectionWin::CriticalSectionWin()
+{
+  InitializeCriticalSection(&cs);
+}
+
+CriticalSectionWin::~CriticalSectionWin()
+{
+  DeleteCriticalSection(&cs);
+}
+
+void CriticalSectionWin::lock()
+{
+  EnterCriticalSection(&cs);
+}
+
+void CriticalSectionWin::unlock()
+{
+  LeaveCriticalSection(&cs);
+}
+
+SynchronizedWin::SynchronizedWin(
+  Lock & object) : mObject(object)
+{
+  mObject.lock();
+}
+
+SynchronizedWin::~SynchronizedWin()
+{
+  mObject.unlock();
+}
+} // namespace windows
+} // namespace tincan
+#endif // _IPOP_WIN

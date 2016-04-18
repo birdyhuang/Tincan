@@ -29,7 +29,6 @@ int main(int argc, char **argv) {
   int rv = 0;
   try {
     Tincan tc;
-    tc.Initialize();
     tc.Start();
     tc.Shutdown();
   }

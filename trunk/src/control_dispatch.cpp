@@ -32,23 +32,24 @@ namespace tincan
 using namespace std;
 using namespace rtc;
 
-map<string, int> ControlDispatch::control_map{ 
-  { "register_svc", REGISTER_SVC },
-  { "create_link", CREATE_LINK },
-  { "set_local_ip", SET_LOCAL_IP },
-  { "set_remote_ip", SET_REMOTE_IP },
-  { "trim_link", TRIM_LINK },
-  { "set_cb_endpoint", SET_CB_ENDPOINT },
-  { "get_state", GET_STATE },
-  { "set_logging", SET_LOGGING },
-  { "set_translation", SET_TRANSLATION },
-  { "set_switchmode", SET_SWITCHMODE },
-  { "set_trimpolicy", SET_TRIMPOLICY },
-  { "echo_request", ECHO_REQUEST },
-  { "echo_reply", ECHO_REPLY },
-  { "set_network_ignore_list", SET_NETWORK_IGNORE_LIST }
-};
-ControlDispatch::ControlDispatch()
+//map<string, int> ControlDispatch::control_map{ 
+//  { "register_svc", REGISTER_SVC },
+//  { "create_link", CREATE_LINK },
+//  { "set_local_ip", SET_LOCAL_IP },
+//  { "set_remote_ip", SET_REMOTE_IP },
+//  { "trim_link", TRIM_LINK },
+//  { "set_cb_endpoint", SET_CB_ENDPOINT },
+//  { "get_state", GET_STATE },
+//  { "set_logging", SET_LOGGING },
+//  { "set_translation", SET_TRANSLATION },
+//  { "set_switchmode", SET_SWITCHMODE },
+//  { "set_trimpolicy", SET_TRIMPOLICY },
+//  { "echo_request", ECHO_REQUEST },
+//  { "echo_reply", ECHO_REPLY },
+//  { "set_network_ignore_list", SET_NETWORK_IGNORE_LIST }
+//};
+ControlDispatch::ControlDispatch() :
+  dtol_(nullptr)
 {
   map<string, void (ControlDispatch::*)(TincanControl & control)> control_map2 = {
   { "register_svc", &ControlDispatch::RegisterService },
@@ -144,6 +145,18 @@ ControlDispatch::operator () (TincanControl & control)
 
   //}
 }
+void 
+ControlDispatch::SetDispatchToTincanInf(
+  DispatchToTincanInf * dtot)
+{
+  dtot_ = dtot;
+}
+void 
+ControlDispatch::SetDispatchToListenerInf(
+  DispatchToListenerInf * dtol)
+{
+  dtol_ = dtol;
+}
 void ControlDispatch::RegisterService(TincanControl & control)
 {}
 void 
@@ -194,14 +207,18 @@ void ControlDispatch::TrimLink(TincanControl & control)
   std::string uid = req["uid"].asString();
   //todo
 }
-void ControlDispatch::SetCbEndpoint(TincanControl & control)
+
+void ControlDispatch::SetCbEndpoint(
+  TincanControl & control)
 {
   Json::Value req;
   control.AsJson(req);
   std::string ip = req["ip"].asString();
   int port = req["port"].asInt();
-  //todo
+  unique_ptr<SocketAddress> ctrl_addr(new SocketAddress(ip, port));
+  dtol_->SetCtrlCb(move(ctrl_addr));
 }
+
 void ControlDispatch::GetState(TincanControl & control)
 {
   Json::Value req;
@@ -210,6 +227,7 @@ void ControlDispatch::GetState(TincanControl & control)
   bool get_stats = req["stats"].asBool();
   //todo: SendState(uid, get_stats, addr);
 }
+
 void ControlDispatch::SetLogLevel(TincanControl & control)
 {
   Json::Value req;
@@ -281,4 +299,24 @@ void ControlDispatch::SetNetworkIgnoreList(TincanControl & control)
   //todo: manager_.set_network_ignore_list(ignore_list);
 }
 
+void 
+ControlDispatch::CreateVNet(
+  TincanControl & control)
+{
+  Json::Value dict;
+  control.AsJson(dict);
+  unique_ptr<LocalVnetEndpointConfig> cfg(new LocalVnetEndpointConfig);
+  cfg->real_ip = dict["real_ip"].asString();
+  cfg->tap_name = dict["tap_name"].asString();
+  cfg->uid = dict["uid"].asString();
+  cfg->vip4 = dict["vip4"].asString();
+  cfg->vip6 = dict["vip6"].asString();
+  cfg->xmpp_pw = dict["xmpp_pw"].asString();
+  cfg->xmpp_url = dict["xmpp_url"].asString();
+  cfg->xmpp_user = dict["xmpp_user"].asString();
+  cfg->switchmode = dict["xmpp_user"].asBool();
+  cfg->trim_enabled = dict["trim_enabled"].asBool();
+  cfg->translate = dict["translate"].asInt();
+  dtot_->CreateVNet(move(cfg));
+}
 }  // namespace tincan
