@@ -30,18 +30,30 @@
 #include "xmppnetwork.h"
 #include "controller_handle.h"
 #include "webrtc/base/thread.h"
+#include "webrtc/base/network.h"
 
 namespace tincan {
 
 class VirtualNetwork {
  public:
-   VirtualNetwork(unique_ptr<LocalVnetEndpointConfig> lvncfg);
+   VirtualNetwork(
+     unique_ptr<LocalVnetEndpointConfig> lvncfg,
+     ControllerHandle & ctrl_handle);
   ~VirtualNetwork();
   void Configure();
   void Start();
   void Shutdown();
-  void AddRemotePeer(unique_ptr<VnetEndpointConfig> vecfg);
+  void AddRemotePeer(
+    unique_ptr<VnetEndpointConfig> vecfg);
 
+  LocalVnetEndpointConfig & LocalEndpointConfig();
+
+  const string Name();
+  const string HWAddress();
+  const string Fingerprint();
+
+  void IgnoredNetworkInterfaces(
+    const vector<string>& ignored_list);
 
   // Signal handlers for BasicNetworkManager
   virtual void OnNetworksChanged();
@@ -76,9 +88,10 @@ private:
   PeerNetwork * peer_network_;
   unique_ptr<LocalVnetEndpointConfig> config_;
   shared_ptr<rtc::SSLFingerprint> local_fingerprint_;
-  shared_ptr<ControllerHandle>  CtrlHandle;
+  ControllerHandle & ctrl_handle_;
   rtc::Thread vlink_thread_;
   FrameQueue fqr_, fqw_;
+  rtc::BasicNetworkManager net_manager_;
 };
 }  // namespace tincan
 #endif  // TINCAN_VIRTUAL_NIC_H_

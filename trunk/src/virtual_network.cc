@@ -21,13 +21,17 @@
 * THE SOFTWARE.
 */
 #include "virtual_network.h"
+#include <sstream>
 namespace tincan
 {
-VirtualNetwork::VirtualNetwork(unique_ptr<LocalVnetEndpointConfig> lvecfg) :
+VirtualNetwork::VirtualNetwork(
+  unique_ptr<LocalVnetEndpointConfig> lvecfg,
+  ControllerHandle & ctrl_handle) :
   tdev_(nullptr),
   xmpp_network_(nullptr),
   peer_network_(nullptr),
-  config_(move(lvecfg))
+  config_(move(lvecfg)),
+  ctrl_handle_(ctrl_handle)
 {
 
   tdev_ = new TapDev(
@@ -47,7 +51,9 @@ VirtualNetwork::~VirtualNetwork()
   delete peer_network_;
   delete tdev_;
 }
-void VirtualNetwork::Configure()
+
+void
+VirtualNetwork::Configure()
 {
   //initialize the Tap Device
   tdev_->Open(config_->tap_name);
@@ -57,18 +63,24 @@ void VirtualNetwork::Configure()
   //free the config as its not needed anymore
   config_.reset();
 }
-void VirtualNetwork::Start()
+
+void
+VirtualNetwork::Start()
 {
   tdev_->Up();
   tdev_->StartRead();
   vlink_thread_.Run();
 }
-void VirtualNetwork::Shutdown()
+
+void
+VirtualNetwork::Shutdown()
 {
   tdev_->Down();
 }
 
-void VirtualNetwork::AddRemotePeer(unique_ptr<VnetEndpointConfig> vecfg)
+void
+VirtualNetwork::AddRemotePeer(
+  unique_ptr<VnetEndpointConfig> vecfg)
 {
   unique_ptr<RemotePeer> rp = make_unique<RemotePeer>(*vecfg.get());
   unique_ptr<VirtualLink> vl = make_unique<VirtualLink>();
@@ -76,4 +88,42 @@ void VirtualNetwork::AddRemotePeer(unique_ptr<VnetEndpointConfig> vecfg)
   peer_network_->Add(move(rp));
 }
 
+LocalVnetEndpointConfig &
+VirtualNetwork::LocalEndpointConfig()
+{
+  return *config_.get();
+}
+
+const string
+VirtualNetwork::Name()
+{
+  return config_->tap_name;
+}
+
+const string
+VirtualNetwork::HWAddress()
+{
+  unique_ptr<BYTE[]> hwa = tdev_->GetMacAddress(Name().c_str());
+  ostringstream mac;
+  for(short i = 0; i < 6; ++i) {
+    if(i != 0) mac << ':';
+    mac.width(2);
+    mac.fill('0');
+    mac << std::hex << ((int)hwa[i] & 0xff);
+  }
+  return mac.str();
+}
+
+const string
+VirtualNetwork::Fingerprint()
+{
+  return local_fingerprint_->ToString();
+}
+
+void
+VirtualNetwork::IgnoredNetworkInterfaces(
+  const vector<string>& ignored_list)
+{
+  net_manager_.set_network_ignore_list(ignored_list);
+}
 } //namespace tincan

@@ -33,6 +33,9 @@
 #include "webrtc/base/asyncpacketsocket.h"
 #pragma warning(default:4996)
 #include "control_dispatch.h"
+#include "synchronized.h"
+#include "tincan_parameters.h"
+
 namespace tincan
 {
 using namespace std;
@@ -51,8 +54,8 @@ public:
     size_t len,
     const SocketAddress & addr,
     const PacketTime & ptime);
-
-  //ControllerHandle implementation
+  //
+  //ControllerHandle interface implementation
   void Deliver(
     const char * packet,
     size_t packet_len);
@@ -61,8 +64,8 @@ public:
     const string & uid,
     const string & type,
     const string & msg);
-
-  //Dispatch to Listener Interface Implementation
+  //
+  //DispatchtoListener interface implementation
   void SetCtrlCb(
     unique_ptr<SocketAddress> controller_addr
     );
@@ -74,7 +77,8 @@ private:
   //AsyncPacketSocket * socket6_;
   //Thread *signal_thread_;
   PacketOptions packet_options_;
-
+  Mutex skt_mutex_;
+  TincanParameters params_;
 };
 }  // namespace tincan
 #endif  // TINCAN_CONTROL_LISTENER_H_

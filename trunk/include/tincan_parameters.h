@@ -20,31 +20,54 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 */
-#ifndef TINCAN_VNET_ENDPOINT_CONFIG_H_
-#define TINCAN_VNET_ENDPOINT_CONFIG_H_
-
-#include <string>
-
+#ifndef TINCAN_PARAMETERS_H_
+#define TINCAN_PARAMETERS_H_
 namespace tincan
 {
-using namespace std;
-struct VnetEndpointConfig
+class TincanParameters
 {
-  string uid;
-  string vip4;
-  string vip6;
-};
-struct LocalVnetEndpointConfig : public VnetEndpointConfig
-{
-  string tap_name;
-  string gateway_ip;
-  string xmpp_url;
-  string xmpp_user;
-  string xmpp_pw;
-  bool switchmode_enabled;
-  bool trim_enabled;
-  bool translation_enabled;
+public:
+  //
+  static int kUdpPort;
+
+  //
+  static const char kLocalHost[];
+
+  //
+  static const char kLocalHost6[];
+
+  //
+  static const int kDefaultXmppPort;
+
+  //
+  static const int kBufferSize;
+
+  //
+  static const char kIpopVer;
+
+  //
+  static const char kTincanControl;
+
+  //
+  static const char kTincanPacket;
+
+  //Intercontroller connection header
+  static const char kICCControl;
+
+  //Intercontroller connection header
+  static const char kICCPacket = 0x04;
 };
 
+int kUdpPort = 5800;
+const char TincanParameters::kLocalHost[] = "127.0.0.1";
+const char TincanParameters::kLocalHost6[] = "::1";
+const int TincanParameters::kDefaultXmppPort = 5222;
+const int TincanParameters::kBufferSize = 1024;
+const char TincanParameters::kIpopVer = 0x03;
+const char TincanParameters::kTincanControl = 0x01;
+const char TincanParameters::kTincanPacket = 0x02;
+const char TincanParameters::kICCControl = 0x03;
+static const char kICCPacket = 0x04;
+
 } // namespace tincan
-#endif // TINCAN_VNET_ENDPOINT_CONFIG_H_
+#endif // TINCAN_PARAMETERS_H_

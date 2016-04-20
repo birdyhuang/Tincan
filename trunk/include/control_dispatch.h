@@ -58,26 +58,26 @@ public:
 private:
   void RegisterService(TincanControl & control);
   void CreateLink(TincanControl & control);
-  void SetLocalIp(TincanControl & control);
-  void SetRemoteIp(TincanControl & control);
+  //void SetLocalIp(TincanControl & control);
+  //void SetRemoteIp(TincanControl & control);
   void TrimLink(TincanControl & control);
-  void SetCbEndpoint(TincanControl & control);
+  void CreateCtrlEndpoint(TincanControl & control);
   void GetState(TincanControl & control);
   void SetLogLevel(TincanControl & control);
-  void SetTranslation(TincanControl & control);
-  void SetSwitchmode(TincanControl & control);
-  void SetTrimPolicy(TincanControl & control);
+  //void SetTranslation(TincanControl & control);
+  //void SetSwitchmode(TincanControl & control);
+  //void SetTrimPolicy(TincanControl & control);
   void EchoRequest(TincanControl & control);
-  void EchoReply(TincanControl & control);
+  //void EchoReply(TincanControl & control);
   void SetNetworkIgnoreList(TincanControl & control);
-
+  void SendICC(TincanControl & control);
   void CreateVNet(TincanControl & control);
 
-  static map<std::string, int>control_map;
-  map<std::string, void (ControlDispatch::*)(TincanControl & control)>control_map2;
+//  static map<std::string, int>control_map;
+  map<std::string, void (ControlDispatch::*)(TincanControl & control)>control_map;
   DispatchToListenerInf * dtol_;
   DispatchToTincanInf * dtot_;
-
+  ControllerHandle * ctrl_handle_;
 };
 }  // namespace tincan
 #endif  // TINCAN_CONTROL_DISPATCH_H_

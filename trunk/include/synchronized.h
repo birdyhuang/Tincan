@@ -44,7 +44,7 @@
 
 namespace tincan
 {
-
+using namespace windows;
 class Mutex :
 #if defined(_IPOP_WIN)
   virtual public MutexWin
@@ -67,13 +67,28 @@ class CriticalSection :
 
 class Synchronized :
 #if defined(_IPOP_WIN)
-  virtual public SynchronizedWin
+  public SynchronizedWin
 #elif defined(_IPOP_LINUX)
-  virtual public SynchronizedLnx
+  public SynchronizedLnx
 #elif defined(_IPOP_OSX)
-  virtual public SynchronizedOsx
+  public SynchronizedOsx
 #endif
 
-{};
+{
+public:
+#if defined(_IPOP_WIN)
+  Synchronized(Lock & lock) :
+    SynchronizedWin(lock)
+  {}
+#elif defined(_IPOP_LINUX)
+  Synchronized(Lock & lock) :
+    SynchronizedLnx(lock)
+  {}
+#elif defined(_IPOP_OSX)
+  Synchronized(Lock & lock) :
+    SynchronizedOsx(lock)
+  {}
+#endif
+}; // class Synchronized
 } // namespace tincan
 #endif // _TINCAN_SYNCHRONIZED_H_

@@ -23,21 +23,22 @@
 
 #include "control_listener.h"
 #include "webrtc\base\thread.h"
+
 namespace tincan
 {
 using namespace std;
 using namespace rtc;
 // todo:
-int kUdpPort;
-static const char kLocalHost[] = "127.0.0.1";
-static const char kLocalHost6[] = "::1";
-static const int kDefaultXmppPort = 5222;
-static const int kBufferSize = 1024;
-static const char kIpopVer = 0x03;
-static const char kTincanControl = 0x01;
-static const char kTincanPacket = 0x02;
-static const char kICCControl = 0x03; //Intercontroller connection header
-static const char kICCPacket = 0x04; //Intercontroller connection header
+//int kUdpPort;
+//static const char kLocalHost[] = "127.0.0.1";
+//static const char kLocalHost6[] = "::1";
+//static const int kDefaultXmppPort = 5222;
+//static const int kBufferSize = 1024;
+//static const char kIpopVer = 0x03;
+//static const char kTincanControl = 0x01;
+//static const char kTincanPacket = 0x02;
+//static const char kICCControl = 0x03; //Intercontroller connection header
+//static const char kICCPacket = 0x04; //Intercontroller connection header
 //end todo
 
 ControlListener::ControlListener(unique_ptr<ControlDispatch> control_dispatch) :
@@ -52,11 +53,11 @@ ControlListener::ControlListener(unique_ptr<ControlDispatch> control_dispatch) :
   BasicPacketSocketFactory packet_factory;
   //TODO: check for IPv6 capability
   socket_ = packet_factory.CreateUdpSocket(
-    SocketAddress(kLocalHost6, tincan::kUdpPort), 0, 0);
+    SocketAddress(params_.kLocalHost6, params_.kUdpPort), 0, 0);
   socket_->SignalReadPacket.connect(this, &ControlListener::ReadPacketHandler);
   //Use IPV4 if no IPv6 installed
   //socket_ = packet_factory.CreateUdpSocket(
-  //  SocketAddress(kLocalHost, tincan::kUdpPort), 0, 0);
+  //  SocketAddress(params_.kLocalHost, tincan::kUdpPort), 0, 0);
  // socket_->SignalReadPacket.connect(this, &ControlListener::ReadPacketHandler);
 }
 
@@ -86,7 +87,7 @@ ControlListener::ReadPacketHandler(
   }
 }
 //
-//Implementation of ControllerHandle Interface
+//ControllerHandle interface implementation
 void ControlListener::Deliver(
   const string & uid,
   const string & type,
@@ -98,6 +99,7 @@ void ControlListener::Deliver(
   json["type"] = type;
   std::string msg = json.toStyledString();
   //todo: add tincan header before sending to Controller
+  Synchronized synch(skt_mutex_);
   socket_->SendTo(msg.c_str(), msg.length(), *controller_addr_.get(), packet_options_);
 }
 
@@ -106,14 +108,15 @@ void ControlListener::Deliver(
   size_t packet_len)
 {
   //todo: add tincan header before sending to Controller
+  Synchronized synch(skt_mutex_);
   socket_->SendTo(packet, packet_len, *controller_addr_.get(), packet_options_);
 
 }
-// end Implementation of ControllerHandle Interface
+// end ControllerHandle interface implementation
 //
 
 //
-//Dispatch to Listener Interface Implementation
+//DispatchtoListener interface implementation
 void 
 ControlListener::SetCtrlCb(
   unique_ptr<SocketAddress> controller_addr)
@@ -124,6 +127,6 @@ ControllerHandle & ControlListener::GetControllerHandle()
 {
   return *this;
 }
-// end Dispatch to Listener Interface Implementation
+// end DispatchtoListener interface implementation
 //
 }  // namespace tincan

@@ -33,8 +33,8 @@
     4. Synchronized - Uses 2 or 3 to serialize a block of code
 ***************************************************************************/
 
-#if !defined(_TINCAN_SYNCHRONIZED_H_)
-#define _TINCAN_SYNCHRONIZED_H_
+#if !defined(_TINCAN_SYNCHRONIZED_WIN_H_)
+#define _TINCAN_SYNCHRONIZED_WIN_H_
 
 #include "lock.h"
 
@@ -51,7 +51,7 @@ class MutexWin :
 public:
   MutexWin();
 
-  ~MutexWin();
+  virtual ~MutexWin();
 
   void lock();
 
@@ -67,7 +67,7 @@ class CriticalSectionWin :
 public:
   CriticalSectionWin();
 
-  ~CriticalSectionWin();
+  virtual ~CriticalSectionWin();
 
   void lock();
 
@@ -82,7 +82,7 @@ class SynchronizedWin
 public:
   SynchronizedWin(Lock & object);
 
-  ~SynchronizedWin();
+  virtual ~SynchronizedWin();
 
 protected:
   Lock & mObject;
@@ -90,4 +90,4 @@ protected:
 } // namespace windows
 } // namespace tincan
 #endif // _IPOP_WIN
-#endif // _TINCAN_SYNCHRONIZED_H_
+#endif // _TINCAN_SYNCHRONIZED_WIN_H_
