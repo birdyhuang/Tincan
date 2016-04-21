@@ -28,6 +28,7 @@
 #include "frame_queue.h"
 
 #if defined OSX
+#include <aio.h>
 typedef unsigned long DWORD;
 typedef short WCHAR;
 typedef void * HANDLE;
@@ -44,7 +45,7 @@ struct ReadCompletion
   ReadCompletion(FrameQueue & iframe_queue) : iframe_queue(iframe_queue) {}
   int operator()(TapFrame & frame)
   {
-    //iframe_queue.push(frame);
+    iframe_queue.push(frame);
     return 0;
   }
   FrameQueue & iframe_queue;
@@ -65,7 +66,9 @@ struct WriteCompletion
 struct AsyncRead
 #if defined(_IPOP_WIN)
 : public OVERLAPPED
-#endif // defined(_IPOP_WIN)
+#elif defined(OSX)
+: public aiocb
+#endif // defined the parent class of aio
 {
   AsyncRead(unique_ptr<ReadCompletion> rd_cmpl) : completion(std::move(rd_cmpl)) {}
   HANDLE dev_handle;

@@ -34,7 +34,6 @@ unique_ptr<BYTE[]> TapDevOsx::getMacAddress(const string & device_name) {
     unique_ptr<BYTE[]> mac_address;
     if (getifaddrs(&ifa_list) < 0) {
         throw OSXEXCEPT("Could not get the network interface list");
-        return NULL;
     }
     for (cur = ifa_list; cur != NULL; cur = cur->ifa_next) {
         if (cur->ifa_addr->sa_family == AF_LINK
@@ -65,9 +64,11 @@ void TapDevOsx::Open(const string & device_name) {
     
     if ((ipv6_config_sock = socket(AF_INET6, SOCK_DGRAM, 0)) < 0) {
         throw OSXEXCEPT("UDP IPv6 socket creation failed");
+        
     }
     
     unique_ptr<BYTE[]> mac_address = getMacAddress(device_name);
+    
 }
 //TapDevMac::TapDevMac(AsyncIoCompletion & iocmpl)
 //{
