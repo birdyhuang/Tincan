@@ -168,13 +168,14 @@ ControlDispatch::CreateLink(
   Json::Value req;
   control.AsJson(req);
   int overlay_id = req["overlay_id"].asInt();
-  std::string uid = req["uid"].asString();
-  std::string fpr = req["fpr"].asString();
-  std::string stun = req["stun"].asString();
-  std::string turn = req["turn"].asString();
-  std::string turn_user = req["turn_user"].asString();
-  std::string turn_pass = req["turn_pass"].asString();
-  std::string cas = req["cas"].asString();
+  string tap_name = req["tap_name"].asString();
+  string uid = req["uid"].asString();
+  string fpr = req["fpr"].asString();
+  string stun = req["stun"].asString();
+  string turn = req["turn"].asString();
+  string turn_user = req["turn_user"].asString();
+  string turn_pass = req["turn_pass"].asString();
+  string cas = req["cas"].asString();
   bool sec = req["sec"].asBool();
   //todo: Create Link
 }
@@ -184,9 +185,9 @@ ControlDispatch::CreateLink(
 //{
 //  Json::Value req;
 //  control.AsJson(req);
-//  std::string uid = req["uid"].asString();
-//  std::string ip4 = req["ip4"].asString();
-//  std::string ip6 = req["ip6"].asString();
+//  string uid = req["uid"].asString();
+//  string ip4 = req["ip4"].asString();
+//  string ip6 = req["ip6"].asString();
 //  int ip4_mask = req["ip4_mask"].asInt();
 //  int ip6_mask = req["ip6_mask"].asInt();
 //  int subnet_mask = req["subnet_mask"].asInt();
@@ -197,16 +198,16 @@ ControlDispatch::CreateLink(
 //{
 //  Json::Value req;
 //  control.AsJson(req);
-//  std::string uid = req["uid"].asString();
-//  std::string ip4 = req["ip4"].asString();
-//  std::string ip6 = req["ip6"].asString();
+//  string uid = req["uid"].asString();
+//  string ip4 = req["ip4"].asString();
+//  string ip6 = req["ip6"].asString();
 //  //TODO: set remote ip
 //}
 void ControlDispatch::TrimLink(TincanControl & control)
 {
   Json::Value req;
   control.AsJson(req);
-  std::string uid = req["uid"].asString();
+  string uid = req["uid"].asString();
   //TODO:
 }
 
@@ -215,7 +216,7 @@ void ControlDispatch::CreateCtrlEndpoint(
 {
   Json::Value req;
   control.AsJson(req);
-  std::string ip = req["ip"].asString();
+  string ip = req["ip"].asString();
   int port = req["port"].asInt();
   unique_ptr<SocketAddress> ctrl_addr(new SocketAddress(ip, port));
   dtol_->SetCtrlCb(move(ctrl_addr));
@@ -232,7 +233,7 @@ void ControlDispatch::GetState(TincanControl & control)
   string tap_name = req["tap_name"].asString();
   map<string, uint32_t>::const_iterator itb, ite;
   if(uid.length() == 0) {
-    map<std::string, uint32_t> friends;
+    map<string, uint32_t> friends;
     friends[uid] = rtc::Time();
     itb = friends.begin();
     ite = friends.end();
@@ -308,7 +309,7 @@ void ControlDispatch::SetNetworkIgnoreList(TincanControl & control)
   string tap_name = req["tap_name"].asString();
   int count = req["network_ignore_list"].size();
   Json::Value network_ignore_list = req["network_ignore_list"];
-  LOG_F(INFO) << "Listed network device is ignored for TinCan connection"
+  LOG_F(LS_INFO) << "Listed network device is ignored for TinCan connection"
     << network_ignore_list.toStyledString();
   vector<string> ignore_list(count);
   for(int i = 0; i<count; i++) {
@@ -322,8 +323,8 @@ void ControlDispatch::SendICC(TincanControl & control)
   Json::Value req;
   control.AsJson(req);
   int overlay_id = req["overlay_id"].asInt();
-  std::string uid = req["uid"].asString();
-  std::string fpr = req["data"].asString();
+  string uid = req["uid"].asString();
+  string fpr = req["data"].asString();
   //TODO: socket_-> SendToPeer(overlay_id, uid, fpr, method);
 }
 

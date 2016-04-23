@@ -329,6 +329,7 @@
     <ClInclude Include="..\include\tapdev_inf.h" />
     <ClInclude Include="..\include\tap_frame.h" />
     <ClInclude Include="..\include\tincan.h" />
+    <ClInclude Include="..\include\tincan_exception.h" />
     <ClInclude Include="..\include\tincan_parameters.h" />
     <ClInclude Include="..\include\virtual_link.h" />
     <ClInclude Include="..\include\tincanxmppsocket.h" />
@@ -344,8 +345,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\include\windows\synchronized_win.cc" />
-    <ClCompile Include="..\src\control_dispatch.cpp" />
-    <ClCompile Include="..\src\control_listener.cpp" />
+    <ClCompile Include="..\src\control_dispatch.cc" />
+    <ClCompile Include="..\src\control_listener.cc" />
     <ClCompile Include="..\src\peer_network.cc" />
     <ClCompile Include="..\src\tapdev.cc" />
     <ClCompile Include="..\src\tincan.cc" />

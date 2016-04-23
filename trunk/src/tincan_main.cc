@@ -34,7 +34,7 @@ int main(int argc, char **argv) {
   }
   catch(exception & e) {
     rv = -1;
-    e.what();
+    LOG_F(LS_ERROR) << e.what();
   }
 
   return rv;

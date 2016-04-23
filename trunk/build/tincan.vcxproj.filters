@@ -1011,6 +1011,9 @@
     <ClInclude Include="..\include\tincan_parameters.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\tincan_exception.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\peer_network.cc">
@@ -1037,14 +1040,14 @@
     <ClCompile Include="..\src\virtual_network.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\control_listener.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\control_dispatch.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\include\windows\synchronized_win.cc">
       <Filter>Source Files\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\control_dispatch.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\control_listener.cc">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

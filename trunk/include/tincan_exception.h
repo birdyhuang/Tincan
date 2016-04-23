@@ -20,38 +20,43 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 */
-#ifndef TINCAN_TAPDEV_H_
-#define TINCAN_TAPDEV_H_
-
-#include "async_io.h"
-#include "tap_frame.h"
+#ifndef TINCAN_EXCEPTION_H_
+#define TINCAN_EXCEPTION_H_
 
 #if defined(_IPOP_LINUX)
-#include "linux/tapdev_lnx.h"
+#include "linux/lnx_exception.h"
 #elif defined(_IPOP_OSX)
-#include "mac/tapdev_mac.h"
+#include "mac/mac_exception.h"
 #elif defined(_IPOP_WIN)
-#include "windows/tapdev_win.h"
+#include "windows/win_exception.h"
 #endif
 
 namespace tincan {
+#define TCEXCEPT(ExtendedErrorInfo) 	TinCanException(ExtendedErrorInfo, __FILE__, __LINE__)
 
-class TapDev : public
+  class TincanException : public
 #if defined(_IPOP_LINUX)
-  linux::TapDevLnx
+    linux::LnxException
 #elif defined(_IPOP_OSX)
-  mac::TapDevMac
+    mac::MacException
 #elif defined(_IPOP_WIN)
-  windows::TapDevWin
+    windows::WinException
 #endif
-{
+  {
 public:
-  TapDev(
-    unique_ptr<AsyncRead>async_rd,
-    unique_ptr<AsyncWrite> async_wr_);
-
-  virtual ~TapDev();
-};
-
-}  // namespace tincan
-#endif  // TINCAN_TAPDEV_H_
+  TincanException(
+    const char *const & ExtendedErrorInfo,
+    const char *const & SourceFile,
+    const unsigned int SourceLine) :
+#if defined(_IPOP_LINUX)
+    linux::LnxException()
+#elif defined(_IPOP_OSX)
+    mac::MacException()
+#elif defined(_IPOP_WIN)
+    windows::WinException(ExtendedErrorInfo, SourceFile, SourceLine)
+#endif
+  {}
+  ~TincanException();
+  };
+} // namespace tincan
+#endif  // TINCAN_EXCEPTION_H_

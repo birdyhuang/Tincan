@@ -22,24 +22,12 @@
 */
 
 #include "control_listener.h"
-#include "webrtc\base\thread.h"
+//#include "webrtc\base\thread.h"
 
 namespace tincan
 {
 using namespace std;
 using namespace rtc;
-// todo:
-//int kUdpPort;
-//static const char kLocalHost[] = "127.0.0.1";
-//static const char kLocalHost6[] = "::1";
-//static const int kDefaultXmppPort = 5222;
-//static const int kBufferSize = 1024;
-//static const char kIpopVer = 0x03;
-//static const char kTincanControl = 0x01;
-//static const char kTincanPacket = 0x02;
-//static const char kICCControl = 0x03; //Intercontroller connection header
-//static const char kICCPacket = 0x04; //Intercontroller connection header
-//end todo
 
 ControlListener::ControlListener(unique_ptr<ControlDispatch> control_dispatch) :
   control_dispatch_(move(control_dispatch)),

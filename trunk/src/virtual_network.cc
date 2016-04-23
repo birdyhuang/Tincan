@@ -59,6 +59,11 @@ VirtualNetwork::Configure()
   tdev_->Open(config_->tap_name);
   //tdev_->SetIp4Addr();
   //tdev_->SetIp4Route();
+  
+  // we create X509 identity for secure connections
+  sslid_.reset(rtc::SSLIdentity::Generate(config_->uid));
+  local_fingerprint_.reset(rtc::SSLFingerprint::Create(
+    rtc::DIGEST_SHA_1, sslid_.get()));
 
   //free the config as its not needed anymore
   config_.reset();
@@ -69,7 +74,7 @@ VirtualNetwork::Start()
 {
   tdev_->Up();
   tdev_->StartRead();
-  vlink_thread_.Run();
+  //vlink_thread_.Run();
 }
 
 void
@@ -84,7 +89,7 @@ VirtualNetwork::AddRemotePeer(
 {
   unique_ptr<RemotePeer> rp = make_unique<RemotePeer>(*vecfg.get());
   unique_ptr<VirtualLink> vl = make_unique<VirtualLink>();
-  rp->SetVirtialLink(move(vl));
+  rp->SetVirtualLink(move(vl));
   peer_network_->Add(move(rp));
 }
 

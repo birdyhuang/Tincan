@@ -34,9 +34,9 @@
 #define _TINCAN_SYNCHRONIZED_H_
 
 #include "lock.h"
-#if defined(LINUX)
+#if defined(_IPOP_LINUX)
 #include "linux/synchronized_lnx.h"
-#elif defined(OSX)
+#elif defined(_IPOP_OSX)
 #include "mac/synchronized_mac.h"
 #elif defined(_IPOP_WIN)
 #include "windows/synchronized_win.h"
