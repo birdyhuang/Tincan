@@ -41,8 +41,8 @@ class TapDevWin : public TapDevInf
 {
 public:
   TapDevWin(
-    unique_ptr<AsyncRead>async_rd,
-    unique_ptr<AsyncWrite> async_wr_);
+    unique_ptr<AsyncRead> async_rd,
+    unique_ptr<AsyncWrite> async_wr);
 
   ~TapDevWin();
 

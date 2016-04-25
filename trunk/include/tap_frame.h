@@ -40,10 +40,12 @@ struct TapFrame
   TapFrame(unsigned char * data, unsigned int len) : 
     sz(len), buffer(data)
   {}
+  
   TapFrame(TapFrame & frame)
   {
     *this = frame;
   }
+  
   TapFrame & operator= (const TapFrame & rhs)
   {
     if(this == &rhs) return *this;

@@ -20,8 +20,8 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 */
-#ifndef TINCAN_TAPDEV_MAC_H_
-#define TINCAN_TAPDEV_MAC_H_
+#ifndef TINCAN_TAPDEV_OSX_H_
+#define TINCAN_TAPDEV_OSX_H_
 
 #include "tapdev_inf.h"
 #include "async_io.h"
@@ -33,9 +33,9 @@ namespace osx {
 class TapDevOsx : public TapDevInf
 {
 public:
-//  TapDevMac(
-//    AsyncIoCompletion & iocmpl);
-    TapDevOsx();
+  TapDevOsx(
+    unique_ptr<AsyncRead> async_rd,
+    unique_ptr<AsyncWrite> async_wr_);
 
   ~TapDevOsx();
 
@@ -43,15 +43,15 @@ public:
 
   void Close();
 
-  void Read(
-    TapFrame & frame);
+  void Read(TapFrame & frame);
 
-  void Write(
-    TapFrame & frame);
+  void Write(TapFrame & frame);
 
-  void Configure(
-    unsigned long request,
-    void* arg);
+//  void Configure(
+//    unsigned long request,
+//    void* arg);
+
+    void SetFlags(short enable, short disable);
 
   void EnableArp();
 
@@ -90,19 +90,24 @@ public:
 //    const char *option,
 //    const char *value);
 
-    unique_ptr<BYTE[]> getMacAddress(const string & device_name);
+    unique_ptr<BYTE[]> GetMacAddress(const string & device_name);
 
 protected:
+//    int SetFlags();
+    void SetDevHandle(HANDLE handle);
+
     /* static defined in the class, but initialized outside the class */
     static const char *const  TUN_PATH;
     static const char *const  PATH_2_IFCONFIG;
     static const char *const  IFCONFIG;
-    static int fd;
     static int ipv4_config_sock, ipv6_config_sock;
     static const int MAX_ADAPTER_ADDRESS_LENGTH;
+    static struct ifreq ifr;
+    bool is_read_started;
+    unique_ptr<AsyncRead> rd_aio_;
+    unique_ptr<AsyncWrite> wr_aio_;
     
-  int SetFlags();
 };
 }  // namespace osx
 }  // namespace tincan
-#endif  // TINCAN_TAPDEV_MAC_H_
+#endif  // TINCAN_TAPDEV_OSX_H_
