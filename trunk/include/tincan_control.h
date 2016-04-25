@@ -22,15 +22,65 @@
 */
 #ifndef TINCAN_TINCAN_CONTROL_H_
 #define TINCAN_TINCAN_CONTROL_H_
+#include <memory>
+#include <string>
+#include "vnet_endpoint_config.h"
+#include "webrtc/base/json.h"
+#pragma warning(disable:4996)
+#include "webrtc/base/socketaddress.h"
+#pragma warning(default:4996)
+#include "controller_handle.h"
 
 namespace tincan {
+using namespace std;
+using namespace rtc;
+
+class DispatchToListenerInf
+{
+public:
+  virtual void SetCtrlCb(
+    unique_ptr<SocketAddress> controller_addr) = 0;
+  virtual ControllerHandle & GetControllerHandle() = 0;
+};
+
+class DispatchToTincanInf
+{
+public:
+  virtual void CreateVNet(
+    unique_ptr<LocalVnetEndpointConfig> lvecfg) = 0;
+  
+  virtual void SetControllerHandle(
+    ControllerHandle & ctrl_handle) = 0;
+  
+  virtual void GetState(
+    const string & tap_name,
+    map<string, uint32_t>::const_iterator & it_begin,
+    map<string, uint32_t>::const_iterator & it_end,
+    Json::Value & state_data) = 0;
+
+  virtual void GetState(
+    const string & tap_name,
+    Json::Value & state_data) = 0;
+
+  virtual void SetIgnoredNetworkInterfaces(
+    const string & tap_name,
+    vector<string> & ignored_list) = 0;
+};
 
 class TincanControl
 {
 public:
-  TincanControl();
+  TincanControl(const char * const data, const size_t len);
   ~TincanControl();
-  void Start();
+  string Name() const;
+  const unsigned char Type() const;
+  void AsJson(Json::Value & dict);
+private:
+  string message_;
+  const char * const data_;
+  const size_t data_len_;
+  size_t INDEX_VERSION = 0;
+  size_t INDEX_TYPE = 1;
 };
-}
+} // namespace tincan
 #endif  // TINCAN_TINCAN_CONTROL_H_

@@ -27,7 +27,10 @@
 #include "tap_frame.h"
 #include "frame_queue.h"
 
-#if defined OSX
+#if defined(_IPOP_WIN)
+#include <Winsock2.h>
+#include <minwinbase.h>
+#elif defined(_IPOP_OSX)
 #include <aio.h>
 typedef unsigned long DWORD;
 typedef short WCHAR;
@@ -66,7 +69,7 @@ struct WriteCompletion
 struct AsyncRead
 #if defined(_IPOP_WIN)
 : public OVERLAPPED
-#elif defined(OSX)
+#elif defined(_IPOP_OSX)
 : public aiocb
 #endif // defined the parent class of aio
 {

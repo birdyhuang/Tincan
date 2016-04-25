@@ -51,12 +51,6 @@
     <ClInclude Include="..\include\tapdev.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\tapdev_lnx.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\tapdev_mac.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\tincan.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -996,18 +990,36 @@
     <ClInclude Include="..\include\vlink_events.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\control_listener.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\control_dispatch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\controller_handle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\synchronized.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\lock.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\windows\synchronized_win.h">
+      <Filter>Header Files\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\tincan_parameters.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\tincan_exception.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\peer_network.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\tapdev.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\tapdev_lnx.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\tapdev_mac.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\tincan.cc">
@@ -1026,6 +1038,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\virtual_network.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\windows\synchronized_win.cc">
+      <Filter>Source Files\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\control_dispatch.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\control_listener.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

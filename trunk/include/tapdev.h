@@ -26,9 +26,9 @@
 #include "async_io.h"
 #include "tap_frame.h"
 
-#if defined(LINUX)
+#if defined(_IPOP_LINUX)
 #include "linux/tapdev_lnx.h"
-#elif defined(OSX)
+#elif defined(_IPOP_OSX)
 #include "osx/tapdev_osx.h"
 #elif defined(_IPOP_WIN)
 #include "windows/tapdev_win.h"
@@ -37,9 +37,9 @@
 namespace tincan {
 
 class TapDev : public
-#if defined(LINUX)
+#if defined(_IPOP_LINUX)
   linux::TapDevLnx
-#elif defined(OSX)
+#elif defined(_IPOP_OSX)
   osx::TapDevOsx
 #elif defined(_IPOP_WIN)
   windows::TapDevWin

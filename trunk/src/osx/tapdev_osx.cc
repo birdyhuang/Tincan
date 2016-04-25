@@ -1,4 +1,4 @@
-#if defined(OSX)
+#if defined(_IPOP_OSX)
 
 #include <stdio.h>
 #include <string.h>

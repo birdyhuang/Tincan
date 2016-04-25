@@ -25,34 +25,24 @@
 namespace tincan
 {
 
-Tincan::Tincan()
+Tincan::Tincan() :
+  ctrl_listener_(nullptr),
+  ctrl_handle_(nullptr)
 {}
 
 Tincan::~Tincan()
-{}
-
-void
-Tincan::Initialize()
 {
-  //Start tincan control to get config from Controller
-  control_.Start();
-  
-  //...
-  WaitForConfig();
-  //parse config and create a vnic for each virtual interface that is specified
-  for(auto & lvecfg : lve_cfglist) {
-    auto vnet = make_unique<VirtualNetwork>(lvecfg.release());
-    vnet->Configure();
-    vnets_.push_back(vnet);
-  }
+  delete ctrl_listener_;
 }
 
 void
 Tincan::Start()
 {
-  for(auto const & vnet : vnets_) {
-    vnet->Start();
-  }
+  //Start tincan control to get config from Controller
+  unique_ptr<ControlDispatch>ctrl_dispatch(new ControlDispatch);
+  ctrl_dispatch->SetDispatchToTincanInf(this);
+  ctrl_listener_ = new ControlListener(move(ctrl_dispatch));
+
   WaitForExitSignal();
 }
 
@@ -64,12 +54,74 @@ Tincan::Shutdown()
   }
 }
 
+void Tincan::CreateVNet(unique_ptr<LocalVnetEndpointConfig> lvecfg)
+{  
+  auto vnet = make_unique<VirtualNetwork>(move(lvecfg), *ctrl_handle_);
+  vnet->Configure();
+  vnets_.push_back(move(vnet));
+  vnet->Start();
+}
+
+void 
+Tincan::SetControllerHandle(
+  ControllerHandle & ctrl_handle)
+{
+  ctrl_handle_ = &ctrl_handle;
+}
+
+void 
+Tincan::GetState(
+  const string & tap_name,
+  map<string, uint32_t>::const_iterator & it_begin,
+  map<string, uint32_t>::const_iterator & it_end,
+  Json::Value & state_data)
+{
+  VirtualNetwork & vn = VnetByName(tap_name);
+  //TODO
+}
+
+void Tincan::GetState(const string & tap_name, Json::Value & state_data)
+{
+  VirtualNetwork & vn = VnetByName(tap_name);
+  LocalVnetEndpointConfig & lcfg = vn.LocalEndpointConfig();
+  state_data["type"] = "local_state";
+  state_data["uid"] = lcfg.uid;
+  state_data["ip4"] = lcfg.vip4;
+  state_data["ip6"] = lcfg.vip6;
+  state_data["mac"] = vn.HWAddress();
+  state_data["_fpr"] = vn.Fingerprint();
+}
+
+void 
+Tincan::SetIgnoredNetworkInterfaces(
+  const string & tap_name,
+  vector<string>& ignored_list)
+{
+  VirtualNetwork & vn = VnetByName(tap_name);
+  vn.IgnoredNetworkInterfaces(ignored_list);
+}
+
 void
 Tincan::WaitForConfig()
-{}
+{  //TODO
+}
 
 void
 Tincan::WaitForExitSignal()
-{}
+{  //TODO
+}
+
+VirtualNetwork & 
+Tincan::VnetByName(
+  const string & tap_name)
+{
+  for(auto const & vnet : vnets_) {
+    if(vnet->Name().compare(tap_name) == 0)//list of vnets will be small enough where a linear search is best
+      return *vnet.get();
+  }
+  string msg("No virtual network exists by this name:");
+  msg.append(tap_name);
+  throw exception(msg.c_str());
+}
 } // namespace tincan
 

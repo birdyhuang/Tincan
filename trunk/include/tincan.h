@@ -24,23 +24,48 @@
 #include <memory>
 #include <vector>
 #include "virtual_network.h"
-#include "tincan_control.h"
+#include "control_listener.h"
+#include "control_dispatch.h"
+
 namespace tincan {
 using namespace std;
 
-class Tincan
+class Tincan :
+  public DispatchToTincanInf
 {
 public:
   Tincan();
   ~Tincan();
-  void Initialize();
   void Start();
   void Shutdown();
+  //
+  //DispatchToTincanInf interface
+  void CreateVNet(
+    unique_ptr<LocalVnetEndpointConfig> lvecfg);
+  
+  void SetControllerHandle(
+    ControllerHandle & ctrl_handle);
+  
+  void GetState(
+    const string & tap_name,
+    map<string, uint32_t>::const_iterator & it_begin,
+    map<string, uint32_t>::const_iterator & it_end,
+    Json::Value & state_data);
+
+  void GetState(
+    const string & tap_name,
+    Json::Value & state_data);
+
+  void SetIgnoredNetworkInterfaces(
+    const string & tap_name,
+    vector<string> & ignored_list);
+
 private:
   void WaitForConfig();
   void WaitForExitSignal();
+  VirtualNetwork & VnetByName(const string & tap_name);
   vector<unique_ptr<VirtualNetwork>> vnets_;
-  vector<unique_ptr<LocalVnetEndpointConfig>> lve_cfglist;
-  TincanControl control_;
+  ControlListener * ctrl_listener_;
+  ControllerHandle * ctrl_handle_;
 };
 }

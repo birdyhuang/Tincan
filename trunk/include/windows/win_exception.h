@@ -46,10 +46,11 @@ namespace windows
 {
 #define WINEXCEPT(ExtendedErrorInfo) 	WinException(ExtendedErrorInfo, __FILE__, __LINE__)
 
-class WinException : virtual public exception {
+class WinException : virtual public exception
+{
 private:
-  unsigned int	mSourceLine;
-  unsigned int	mHostErrorCode;
+  unsigned int mSourceLine;
+  unsigned int mHostErrorCode;
   const string mSourceFile;
   const string mExtendedErrorInfo;
   string mExcept;

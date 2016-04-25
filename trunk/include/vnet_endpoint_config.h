@@ -30,17 +30,20 @@ namespace tincan
 using namespace std;
 struct VnetEndpointConfig
 {
-  string uid_;
+  string uid;
   string vip4;
   string vip6;
-  string real_ip;
 };
 struct LocalVnetEndpointConfig : public VnetEndpointConfig
 {
   string tap_name;
-  string xmpp_url_;
-  string xmpp_user_;
-  string xmpp_pw_;
+  string gateway_ip;
+  string xmpp_url;
+  string xmpp_user;
+  string xmpp_pw;
+  bool switchmode_enabled;
+  bool trim_enabled;
+  bool translation_enabled;
 };
 
 } // namespace tincan

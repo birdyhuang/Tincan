@@ -29,13 +29,12 @@ int main(int argc, char **argv) {
   int rv = 0;
   try {
     Tincan tc;
-    tc.Initialize();
     tc.Start();
     tc.Shutdown();
   }
   catch(exception & e) {
     rv = -1;
-    e.what();
+    LOG_F(LS_ERROR) << e.what();
   }
 
   return rv;

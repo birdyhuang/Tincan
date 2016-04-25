@@ -34,8 +34,10 @@ PeerNetwork::~PeerNetwork()
 {}
 void PeerNetwork::Add(unique_ptr<RemotePeer> remote_peer)
 {}
-RemotePeer & PeerNetwork::Get(string identifier, MapLookupType id_type)
+unique_ptr<RemotePeer> PeerNetwork::Get(string identifier, MapLookupType id_type)
 {
-  // TODO: insert return statement here
+  // TODO:
+  unique_ptr<RemotePeer> rp = move(ip4_map[identifier]);
+  return rp;
 }
 } // namespace tincan
