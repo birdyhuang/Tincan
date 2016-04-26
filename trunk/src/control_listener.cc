@@ -71,7 +71,7 @@ ControlListener::ReadPacketHandler(
     (*control_dispatch_)(ctrl);
   }
   catch(exception & e) {
-    e.what();
+    LOG_F(LS_WARNING) << e.what();
   }
 }
 //

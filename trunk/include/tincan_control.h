@@ -24,12 +24,12 @@
 #define TINCAN_TINCAN_CONTROL_H_
 #include <memory>
 #include <string>
-#include "vnet_endpoint_config.h"
 #include "webrtc/base/json.h"
 #pragma warning(disable:4996)
 #include "webrtc/base/socketaddress.h"
 #pragma warning(default:4996)
 #include "controller_handle.h"
+#include "vnet_descriptor.h"
 
 namespace tincan {
 using namespace std;
@@ -47,7 +47,7 @@ class DispatchToTincanInf
 {
 public:
   virtual void CreateVNet(
-    unique_ptr<LocalVnetEndpointConfig> lvecfg) = 0;
+    unique_ptr<VnetDescriptor> lvecfg) = 0;
   
   virtual void SetControllerHandle(
     ControllerHandle & ctrl_handle) = 0;
@@ -65,6 +65,13 @@ public:
   virtual void SetIgnoredNetworkInterfaces(
     const string & tap_name,
     vector<string> & ignored_list) = 0;
+
+  virtual void CreateVnetLink(
+    const Json::Value & link_desc) = 0;
+
+  virtual void RemoveVnetLink(
+    const Json::Value & link_desc) = 0;
+
 };
 
 class TincanControl

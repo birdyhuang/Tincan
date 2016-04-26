@@ -76,7 +76,7 @@ private:
 //  static map<std::string, int>control_map;
   map<std::string, void (ControlDispatch::*)(TincanControl & control)>control_map;
   DispatchToListenerInf * dtol_;
-  DispatchToTincanInf * dtot_;
+  DispatchToTincanInf * tincan_;
   ControllerHandle * ctrl_handle_;
 };
 }  // namespace tincan

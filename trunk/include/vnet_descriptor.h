@@ -28,23 +28,26 @@
 namespace tincan
 {
 using namespace std;
-struct VnetEndpointConfig
+struct PeerDescriptor
 {
   string uid;
   string vip4;
   string vip6;
 };
-struct LocalVnetEndpointConfig : public VnetEndpointConfig
+
+struct VnetDescriptor
 {
+  string uid;
   string tap_name;
-  string gateway_ip;
-  string xmpp_url;
-  string xmpp_user;
-  string xmpp_pw;
+  string vip4;
+  string vip6;
+  //string gateway_ip;
+  //string xmpp_url;
+  //string xmpp_user;
+  //string xmpp_pw;
   bool switchmode_enabled;
   bool trim_enabled;
   bool translation_enabled;
 };
-
 } // namespace tincan
 #endif // TINCAN_VNET_ENDPOINT_CONFIG_H_

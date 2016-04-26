@@ -41,7 +41,7 @@ public:
   //
   //DispatchToTincanInf interface
   void CreateVNet(
-    unique_ptr<LocalVnetEndpointConfig> lvecfg);
+    unique_ptr<VnetDescriptor> lvecfg);
   
   void SetControllerHandle(
     ControllerHandle & ctrl_handle);
@@ -60,10 +60,19 @@ public:
     const string & tap_name,
     vector<string> & ignored_list);
 
+  void CreateVnetLink(
+    const Json::Value & link_desc);
+
+  void RemoveVnetLink(
+    const Json::Value & link_desc);
+
 private:
   void WaitForConfig();
   void WaitForExitSignal();
-  VirtualNetwork & VnetByName(const string & tap_name);
+
+  VirtualNetwork & VnetFromName(
+    const string & tap_name);
+
   vector<unique_ptr<VirtualNetwork>> vnets_;
   ControlListener * ctrl_listener_;
   ControllerHandle * ctrl_handle_;

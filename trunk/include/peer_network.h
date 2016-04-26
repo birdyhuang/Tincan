@@ -27,35 +27,28 @@ using namespace std;
 #include "remote_peer.h"
 namespace tincan
 {
-enum MapLookupType
-{
-  IP4,
-  IP6,
-  MAC,
-  UID,
-  MAX_TYPE
-};
 class PeerNetwork
 {
 public:
-  PeerNetwork();
+  PeerNetwork(
+    const string & name);
 	~PeerNetwork();
   void Add(unique_ptr<RemotePeer> remote_peer);
-  unique_ptr<RemotePeer> Get(
-    string identifier, 
-    MapLookupType id_type);
-
+  void Remove(const string & peer_uid);
+  
+  RemotePeer & UidToPeer(const string & id);
 private:
+  const string & name_;
   //list of remote peer nodes on this virt net
-  vector<unique_ptr<RemotePeer>> peers_;
+  //vector<shared_ptr<RemotePeer>> peers_;
   //map by ip4
-  map<string, unique_ptr<RemotePeer>> ip4_map;
+  map<string, shared_ptr<RemotePeer>> ip4_map;
   //map by ip6
-  map<string, unique_ptr<RemotePeer>> ip6_map;
+  map<string, shared_ptr<RemotePeer>> ip6_map;
   //map by mac
-  map<string, unique_ptr<RemotePeer>> mac_map;
+  map<string, shared_ptr<RemotePeer>> mac_map;
   //map by uid
-  map<string, unique_ptr<RemotePeer>> uid_map;
+  map<string, shared_ptr<RemotePeer>> uid_map;
 
 };
 } // namespace tincan

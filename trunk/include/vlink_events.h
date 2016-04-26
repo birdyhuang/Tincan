@@ -28,20 +28,20 @@ namespace tincan
 class VlinkEvents: public rtc::MessageHandler
 {
   // Signal handlers for BasicNetworkManager
-  virtual void OnNetworksChanged();
+  virtual void OnNetworksChanged() = 0;
 
   // Signal handlers for TransportChannelImpl
-  virtual void OnRequestSignaling(cricket::Transport* transport);
-  virtual void OnRWChangeState(cricket::Transport* transport);
+  virtual void OnRequestSignaling(cricket::Transport* transport) = 0;
+  virtual void OnRWChangeState(cricket::Transport* transport) = 0;
   virtual void OnCandidatesReady(cricket::Transport* transport,
-    const cricket::Candidates& candidates);
-  virtual void OnCandidatesAllocationDone(cricket::Transport* transport);
+    const cricket::Candidates& candidates) = 0;
+  virtual void OnCandidatesAllocationDone(cricket::Transport* transport) = 0;
   virtual void OnReadPacket(cricket::TransportChannel* channel,
     const char* data, size_t len,
-    const rtc::PacketTime& ptime, int flags);
+    const rtc::PacketTime& ptime, int flags) = 0;
 
   // Inherited from MessageHandler
-  virtual void OnMessage(rtc::Message* msg);
+  virtual void OnMessage(rtc::Message* msg) = 0;
 
 };
 

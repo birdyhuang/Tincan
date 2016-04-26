@@ -37,7 +37,7 @@ struct TapFrame
     sz(frame_sz),
     buffer(make_unique<unsigned char[]>(frame_sz)) {}
 
-  TapFrame(unsigned char * data, unsigned int len) : 
+  TapFrame(unsigned char * data, size_t len) : 
     sz(len), buffer(data)
   {}
   TapFrame(TapFrame & frame)

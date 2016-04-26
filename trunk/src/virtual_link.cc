@@ -21,8 +21,12 @@
 * THE SOFTWARE.
 */
 #include<memory>
+#pragma warning( push )
+#pragma warning(disable:4996)
+#pragma warning(disable:4100)
 #include "webrtc/base/stringencode.h"
 #include "webrtc/p2p/base/dtlstransport.h"
+#pragma warning( pop )
 #include "tap_frame.h"
 #include "virtual_link.h"
 namespace tincan
@@ -30,49 +34,92 @@ namespace tincan
 using namespace std;
 using namespace rtc;
 
-VirtualLink::VirtualLink() :
-  content_name_(params_.kContentName),
-  tiebreaker_(rtc::CreateRandomId64())
-{
-  content_name_.append(params_.CounterAsString(params_.counter()));
-}
+VirtualLink::VirtualLink(
+  unique_ptr<const VlinkDescriptor> vlink_desc,
+  FrameHandler & FrameRcvHandler) :
+  vlink_desc_(move(vlink_desc)),
+  FrameRcvHandler_(FrameRcvHandler),
+  tiebreaker_(rtc::CreateRandomId64()),
+  content_name_(vlink_desc_->name)
+{}
 
 VirtualLink::~VirtualLink()
 {}
 
 void
 VirtualLink::Initialize(
-  VlinkEvents & vlink_events,
-  const VlinkConfig & vlink_cfg,
+  //VlinkEvents & vlink_events,
+  //const VlinkDescriptor & vlink_cfg,
+  const string & local_uid,
   BasicNetworkManager & network_manager,
   const SSLFingerprint & local_fingerprint,
   const SSLIdentity & sslid)
 {
-  CreateTransport(vlink_cfg, network_manager, local_fingerprint, sslid);
-  RegisterLinkEventHandlers(vlink_events);
-  SetupTransport();
-  CreateCandidateConnections(vlink_cfg.cas);
+  CreateTransport(network_manager, local_fingerprint, sslid);
+  RegisterLinkEventHandlers();
+  SetupTransport(local_uid, local_fingerprint, vlink_desc_->peer_fpr);
+  transport_->ConnectChannels();
+  //TODO: Invoke packet handling thread???
 }
 
-void 
+/* Parses the string delimited list of candidates and adds
+them to the P2P transport thereby creating ICE connections
+*/
+void
+VirtualLink::CreateCandidateConnections(
+  const string & candidates)
+{
+  std::istringstream iss(candidates);
+  do {
+    std::string candidate_str;
+    iss >> candidate_str;
+    std::vector<std::string> fields;
+    size_t len = rtc::split(candidate_str, ':', &fields);
+    if(len >= 12) {
+      //TODO: fix candidates
+      cricket::Candidate candidate;
+      //fields[0], 
+      //atoi(fields[1].c_str()), 
+      //fields[2],
+      //rtc::SocketAddress(fields[3], atoi(fields[4].c_str())),
+      //atoi(fields[5].c_str()), 
+      //fields[6], 
+      //fields[7], 
+      //fields[8],
+      //fields[9], 
+      //atoi(fields[10].c_str()), 
+      //fields[11]);
+      candidates_->push_back(candidate);
+    }
+  } while(iss);
+  string err;
+  bool rv = transport_->AddRemoteCandidates(*candidates_.get(), &err);
+  return;
+}
+
+void
 VirtualLink::CreateTransport(
-  const VlinkConfig & vlink_cfg,
+  //const VlinkDescriptor & vlink_cfg,
   BasicNetworkManager & network_manager,
   const SSLFingerprint & local_fingerprint,
   const SSLIdentity & sslid)
 {
   rtc::SocketAddress stun_addr;
-  stun_addr.FromString(vlink_cfg.stun_addr);
+  stun_addr.FromString(vlink_desc_->stun_addr);
   port_allocator_.reset(new cricket::BasicPortAllocator(
     &network_manager, &packet_factory_, { stun_addr }));
   port_allocator_->set_flags(params_.kFlags);
 
-  SetupTURN(vlink_cfg.turn_addr, vlink_cfg.turn_user, vlink_cfg.turn_pass);
+  SetupTURN(vlink_desc_->turn_addr, vlink_desc_->turn_user, vlink_desc_->turn_pass);
 
   int component = cricket::ICE_CANDIDATE_COMPONENT_DEFAULT;
-  if(vlink_cfg.sec_enabled) {
+  //TODO:
+  rtc::scoped_refptr<rtc::RTCCertificate> cert;
+  //scoped_ptr<SSLIdentity> identity;
+  cert->Create(scoped_ptr<SSLIdentity>());
+  if(vlink_desc_->sec_enabled) {
     transport_ = make_unique<DtlsP2PTransport>(
-      content_name_, port_allocator_.get(), &sslid);
+      content_name_, port_allocator_.get(), cert);
 
     cricket::DtlsTransportChannelWrapper* dtls_channel =
       static_cast<cricket::DtlsTransportChannelWrapper*>(
@@ -89,79 +136,76 @@ VirtualLink::CreateTransport(
       transport_->CreateChannel(component)));
     connection_security_ = "none";
   }
-
-
-  transport_->ConnectChannels();
-
-  //TODO: Invoke packet handling thread
 }
 
-  /* Parses the string delimited list of candidates and adds
-     them to the P2P transport thereby creating ICE connections
-  */
-void 
-VirtualLink::CreateCandidateConnections(
-  const string & candidates)
+void
+VirtualLink::OnReadPacket(
+  cricket::TransportChannel * channel,
+  const char * data,
+  size_t len,
+  const rtc::PacketTime & ptime,
+  int flags)
 {
-  std::istringstream iss(candidates);
-  do {
-    std::string candidate_str;
-    iss >> candidate_str;
-    std::vector<std::string> fields;
-    size_t len = rtc::split(candidate_str, ':', &fields);
-    if(len >= 12) {
-      //TODO: fix candidates
-      cricket::Candidate candidate;
-        //fields[0], 
-        //atoi(fields[1].c_str()), 
-        //fields[2],
-        //rtc::SocketAddress(fields[3], atoi(fields[4].c_str())),
-        //atoi(fields[5].c_str()), 
-        //fields[6], 
-        //fields[7], 
-        //fields[8],
-        //fields[9], 
-        //atoi(fields[10].c_str()), 
-        //fields[11]);
-      candidates_->push_back(candidate);
-    }
-  } while(iss);
-  string err;
-  bool rv = transport_->AddRemoteCandidates(*candidates_.get(), &err);
-  return;
+  //TODO:
+  TapFrame frame_((unsigned char*)data, len);
+  FrameRcvHandler_.ReceiveFrame(frame_);
 }
 
-void 
-VirtualLink::SetupTransport(const string & peer_fpr)
+void
+VirtualLink::RegisterLinkEventHandlers()
+{
+  channel_->SignalReadPacket.connect(
+    this, &VirtualLink::OnReadPacket);
+
+  //transport_->SignalRequestSignaling.connect(
+  //  transport_, &DtlsP2PTransport::OnSignalingReady);
+
+  //transport_->SignalCandidatesReady.connect(
+  //  this, &TinCanConnectionManager::OnCandidatesReady);
+
+  //transport_->SignalCandidatesAllocationDone.connect(
+  //  this, &TinCanConnectionManager::OnCandidatesAllocationDone);
+
+  //transport_->SignalReadableState.connect(
+  //  this, &TinCanConnectionManager::OnRWChangeState);
+
+  //transport_->SignalWritableState.connect(
+  //  this, &TinCanConnectionManager::OnRWChangeState);
+}
+
+void VirtualLink::Transmit(TapFrame & frame)
+{}
+
+void
+VirtualLink::SetupTransport(
+  const string & local_uid,
+  const SSLFingerprint & local_fingerprint,
+  const string & peer_fpr)
 {
   transport_->SetIceTiebreaker(tiebreaker_);
   remote_fingerprint_.reset(
     rtc::SSLFingerprint::CreateFromRfc4572(rtc::DIGEST_SHA_1, peer_fpr));
   cricket::ConnectionRole conn_role_local = cricket::CONNECTIONROLE_ACTPASS;
-  if(uid.compare(tincan_id_) > 0) {
+  if(vlink_desc_->peer_uid.compare(local_uid) > 0) {
     conn_role_local = cricket::CONNECTIONROLE_ACTIVE;
   }
   local_description_.reset(new cricket::TransportDescription(
-    cricket::NS_JINGLE_ICE_UDP,
     std::vector<std::string>(),
     params_.kIceUfrag,
     params_.kIcePwd,
     cricket::ICEMODE_FULL,
     conn_role_local,
-    local_fingerprint_.get(),
-    candidates_));
+    &local_fingerprint));
 
-  remote_description.reset(new cricket::TransportDescription(
-    cricket::NS_JINGLE_ICE_UDP,
+  remote_description_.reset(new cricket::TransportDescription(
     std::vector<std::string>(),
     params_.kIceUfrag,
     params_.kIcePwd,
     cricket::ICEMODE_FULL,
     cricket::CONNECTIONROLE_NONE,
-    remote_fingerprint.get(),
-    candidates_));
+    remote_fingerprint_.get()));
 
-  if(uid.compare(tincan_id_) < 0) {
+  if(vlink_desc_->peer_uid.compare(local_uid) < 0) {
     transport_->SetIceRole(cricket::ICEROLE_CONTROLLING);
     transport_->SetLocalTransportDescription(
       *local_description_.get(), cricket::CA_OFFER, NULL);
@@ -175,11 +219,10 @@ VirtualLink::SetupTransport(const string & peer_fpr)
     transport_->SetLocalTransportDescription(
       *local_description_.get(), cricket::CA_ANSWER, NULL);
   }
-
 }
 
 void
-VirtualLink::SetRelay(
+VirtualLink::SetupTURN(
   const string & turn_server,
   const string & username,
   const std::string & password)
@@ -194,7 +237,7 @@ VirtualLink::SetRelay(
   cricket::RelayServerConfig relay_config_udp(cricket::RELAY_TURN);
   relay_config_udp.ports.push_back(cricket::ProtocolAddress(
     turn_addr, cricket::PROTO_UDP));
-  if(username.empty || password.empty())
+  if(username.empty() || password.empty())
     LOG_F(LS_WARNING) << "TURN credentials were not provided";
   relay_config_udp.credentials.username = username;
   relay_config_udp.credentials.password = password;
@@ -209,6 +252,11 @@ VirtualLink::SetRelay(
   //relay_config_tcp.credentials.username = username;
   //relay_config_tcp.credentials.password = password;
   //port_allocator_->AddTurnServer(relay_config_tcp);
- 
+}
+
+void
+VirtualLink::StartConnections()
+{
+  CreateCandidateConnections(vlink_desc_->cas);
 }
 } // end namespace tincan

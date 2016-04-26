@@ -54,7 +54,7 @@ Tincan::Shutdown()
   }
 }
 
-void Tincan::CreateVNet(unique_ptr<LocalVnetEndpointConfig> lvecfg)
+void Tincan::CreateVNet(unique_ptr<VnetDescriptor> lvecfg)
 {  
   auto vnet = make_unique<VirtualNetwork>(move(lvecfg), *ctrl_handle_);
   vnet->Configure();
@@ -76,14 +76,17 @@ Tincan::GetState(
   map<string, uint32_t>::const_iterator & it_end,
   Json::Value & state_data)
 {
-  VirtualNetwork & vn = VnetByName(tap_name);
+  VirtualNetwork & vn = VnetFromName(tap_name);
   //TODO
 }
 
-void Tincan::GetState(const string & tap_name, Json::Value & state_data)
+void
+Tincan::GetState(
+  const string & tap_name,
+  Json::Value & state_data)
 {
-  VirtualNetwork & vn = VnetByName(tap_name);
-  LocalVnetEndpointConfig & lcfg = vn.LocalEndpointConfig();
+  VirtualNetwork & vn = VnetFromName(tap_name);
+  VnetDescriptor & lcfg = vn.LocalDescriptor();
   state_data["type"] = "local_state";
   state_data["uid"] = lcfg.uid;
   state_data["ip4"] = lcfg.vip4;
@@ -97,8 +100,43 @@ Tincan::SetIgnoredNetworkInterfaces(
   const string & tap_name,
   vector<string>& ignored_list)
 {
-  VirtualNetwork & vn = VnetByName(tap_name);
+  VirtualNetwork & vn = VnetFromName(tap_name);
   vn.IgnoredNetworkInterfaces(ignored_list);
+}
+
+void
+Tincan::CreateVnetLink(
+  const Json::Value & link_desc)
+{
+  string tap_name = link_desc["tap_name"].asString();
+  VirtualNetwork & vn = VnetFromName(tap_name);
+  PeerDescriptor peer_desc;
+  peer_desc.uid = link_desc["peer_uid"].asString();
+  //TODO:
+  peer_desc.vip4 = link_desc["vip4"].asString();
+  peer_desc.vip6 = link_desc["vip6"].asString();
+  unique_ptr<VlinkDescriptor> vl_desc;
+  vl_desc->name = tap_name;
+  vl_desc->overlay_id = link_desc["overlay_id"].asInt();
+  vl_desc->peer_fpr = link_desc["peer_fpr"].asString();
+  vl_desc->peer_uid = link_desc["peer_uid"].asString();
+  vl_desc->sec_enabled = link_desc["sec_enabled"].asBool();
+  vl_desc->stun_addr = link_desc["stun_addr"].asString();
+  vl_desc->turn_addr = link_desc["turn_addr"].asString();
+  vl_desc->turn_pass = link_desc["turn_pass"].asString();
+  vl_desc->turn_user = link_desc["turn_user"].asString();
+
+  vn.AddRemotePeer(peer_desc, move(vl_desc));
+}
+
+void
+Tincan::RemoveVnetLink(
+  const Json::Value & link_desc)
+{
+  const string & tap_name = link_desc["tap_name"].asString();
+  VirtualNetwork & vn = VnetFromName(tap_name);
+  const string & uid = link_desc["uid"].asString();
+  vn.RemoveRemotePeer(uid);
 }
 
 void
@@ -112,7 +150,7 @@ Tincan::WaitForExitSignal()
 }
 
 VirtualNetwork & 
-Tincan::VnetByName(
+Tincan::VnetFromName(
   const string & tap_name)
 {
   for(auto const & vnet : vnets_) {

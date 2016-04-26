@@ -26,17 +26,28 @@
 #include <stdint.h>
 #endif // defined(_IPOP_WIN)
 #include "virtual_link.h"
-#include "vnet_endpoint_config.h"
+#include "vnet_descriptor.h"
 #include "tap_frame.h"
+#include "tapdev.h"
 namespace tincan
 {
-class RemotePeer
+
+class RemotePeer : public FrameHandler
 {
 public:
-  RemotePeer(VnetEndpointConfig const & endpoint_cfg);
+  RemotePeer(
+    PeerDescriptor const & descriptor,
+    TapDev & tap_dev);
 	~RemotePeer();
   void SetVirtualLink(unique_ptr<VirtualLink> vlink);
+  void TrimLink();
+  const string & VirtIp4();
+  const string & VirtIp6();
+  const string & Uid();
+  const string & MacAddress();
   void SendFrame(TapFrame & frame);
+  void ReceiveFrame(TapFrame & frame);
+
 private:
   string uid_; // 160bit unique identifier
   struct in_addr virt_ip_;// the virtual IPv4 address that we see
@@ -45,7 +56,8 @@ private:
   unique_ptr<unsigned char[6]> mac_;// MAC address???
   unique_ptr<VirtualLink> vlink_;
   size_t last_time;
-
+  bool is_connected; // hmm???
+  TapDev & tap_;
   //size_t overlay_id_;
   //string fingerprint_;
 //string connection_security;

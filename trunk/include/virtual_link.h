@@ -5,6 +5,7 @@
 #pragma warning(disable:4996)
 #pragma warning(disable:4100)
 #include "webrtc/base/asyncpacketsocket.h"
+#include "webrtc/base/sslfingerprint.h"
 #include "webrtc/base/network.h"
 #include "webrtc/base/thread.h"
 #include "webrtc/p2p/base/p2ptransport.h"
@@ -14,17 +15,26 @@
 #include "webrtc/p2p/client/basicportallocator.h"
 //#include "webrtc/p2p/client/httpportallocator.h"
 #pragma warning( pop )
-#include "vlink_events.h"
+//#include "vlink_events.h"
+#include "tap_frame.h"
 #include "tincan_parameters.h"
 
 namespace tincan
 {
 typedef cricket::DtlsTransport<cricket::P2PTransport> DtlsP2PTransport;
 
-struct VlinkConfig
+class FrameHandler
+{
+public:
+  virtual void ReceiveFrame(TapFrame & frame) = 0;
+  virtual void SendFrame(TapFrame & frame) = 0;
+};
+
+struct VlinkDescriptor
 {
   bool sec_enabled;
   int overlay_id;
+  string name;
   string peer_uid;
   string peer_fpr;
   string stun_addr;
@@ -34,25 +44,32 @@ struct VlinkConfig
   string cas;
 };
 
-class VirtualLink
+class VirtualLink : public sigslot::has_slots<>
 {
 public:
-  VirtualLink();
+  VirtualLink(
+    unique_ptr<const VlinkDescriptor> vlink_desc,
+    FrameHandler & FrameRcvHandler);
   ~VirtualLink();
   
   void Initialize(
-    VlinkEvents & vlink_events,
-    const VlinkConfig & vlink_cfg,
+   // VlinkEvents & vlink_events,
+    //const VlinkDescriptor & vlink_desc,
+    const string & local_uid,
     rtc::BasicNetworkManager & network_manager,
     const rtc::SSLFingerprint & local_fingerprint,
     const rtc::SSLIdentity & sslid);
 
-  void LocalFingerprint(
-    const rtc::SSLFingerprint & local_fingerprint);
+  void StartConnections();
+
+  void Transmit(TapFrame & frame);
+
+  //void LocalFingerprint(
+  //  const rtc::SSLFingerprint & local_fingerprint);
 
 private:
   void CreateTransport(
-    const VlinkConfig & vlink_cfg,
+    //const VlinkDescriptor & vlink_cfg,
     rtc::BasicNetworkManager & network_manager,
     const rtc::SSLFingerprint & local_fingerprint,
     const rtc::SSLIdentity & sslid);
@@ -62,14 +79,24 @@ private:
     const string & username,
     const std::string & password);
 
-  void RegisterLinkEventHandlers(VlinkEvents & vlink_events);
+  void RegisterLinkEventHandlers();
 
   void CreateCandidateConnections(
     const string & candidates);
   
   void SetupTransport(
+    const string & local_uid,
+    const rtc::SSLFingerprint & local_fingerprint,
     const string & peer_fpr);
-  
+
+  void OnReadPacket(
+    cricket::TransportChannel* channel,
+    const char* data,
+    size_t len,
+    const rtc::PacketTime & ptime,
+    int flags);
+
+  unique_ptr<const VlinkDescriptor> vlink_desc_;
   rtc::BasicPacketSocketFactory packet_factory_;
   unique_ptr<cricket::P2PTransport> transport_;
   unique_ptr<cricket::BasicPortAllocator> port_allocator_;
@@ -86,7 +113,8 @@ private:
   unique_ptr<rtc::SSLFingerprint> remote_fingerprint_;
   string connection_security_;
   TincanParameters params_;
-  string content_name_;
+  const string & content_name_;
+  FrameHandler & FrameRcvHandler_;
 };
 
 } //namespace tincan

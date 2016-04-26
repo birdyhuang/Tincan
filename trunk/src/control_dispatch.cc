@@ -56,19 +56,19 @@ ControlDispatch::ControlDispatch() :
   { "create_ctrl_endpoint", &ControlDispatch::CreateCtrlEndpoint },
   { "create_link", &ControlDispatch::CreateLink },
   { "create_nvet", &ControlDispatch::CreateVNet },
-  //{ "set_local_ip", &ControlDispatch::SetLocalIp },
-  //{ "set_remote_ip", &ControlDispatch::SetRemoteIp },
-  { "get_state", &ControlDispatch::GetState },
-  //{ "set_translation", &ControlDispatch::SetTranslation },
-  //{ "set_switchmode", &ControlDispatch::SetSwitchmode },
-  //{ "set_trimpolicy", &ControlDispatch::SetTrimPolicy },
-  { "echo_request", &ControlDispatch::EchoRequest },
-  { "register_svc", &ControlDispatch::RegisterService },
-  { "send_icc", &ControlDispatch::SendICC },
-  { "set_logging", &ControlDispatch::SetLogLevel },
-  { "set_network_ignore_list", &ControlDispatch::SetNetworkIgnoreList },
-  { "trim_link", &ControlDispatch::TrimLink },
-};
+    //{ "set_local_ip", &ControlDispatch::SetLocalIp },
+    //{ "set_remote_ip", &ControlDispatch::SetRemoteIp },
+    { "get_state", &ControlDispatch::GetState },
+    //{ "set_translation", &ControlDispatch::SetTranslation },
+    //{ "set_switchmode", &ControlDispatch::SetSwitchmode },
+    //{ "set_trimpolicy", &ControlDispatch::SetTrimPolicy },
+    { "echo_request", &ControlDispatch::EchoRequest },
+    { "register_svc", &ControlDispatch::RegisterService },
+    { "send_icc", &ControlDispatch::SendICC },
+    { "set_logging", &ControlDispatch::SetLogLevel },
+    { "set_network_ignore_list", &ControlDispatch::SetNetworkIgnoreList },
+    { "trim_link", &ControlDispatch::TrimLink },
+  };
 }
 
 ControlDispatch::~ControlDispatch()
@@ -147,13 +147,13 @@ ControlDispatch::operator () (TincanControl & control)
 
   //}
 }
-void 
+void
 ControlDispatch::SetDispatchToTincanInf(
   DispatchToTincanInf * dtot)
 {
-  dtot_ = dtot;
+  tincan_ = dtot;
 }
-void 
+void
 ControlDispatch::SetDispatchToListenerInf(
   DispatchToListenerInf * dtol)
 {
@@ -161,24 +161,42 @@ ControlDispatch::SetDispatchToListenerInf(
 }
 void ControlDispatch::RegisterService(TincanControl & control)
 {}
-void 
+void
 ControlDispatch::CreateLink(
   TincanControl & control)
 {
+  //int overlay_id = req["overlay_id"].asInt();
+  //string tap_name = req["tap_name"].asString();
+  //string uid = req["uid"].asString();
+  //string fpr = req["fpr"].asString();
+  //string stun = req["stun"].asString();
+  //string turn = req["turn"].asString();
+  //string turn_user = req["turn_user"].asString();
+  //string turn_pass = req["turn_pass"].asString();
+  //string cas = req["cas"].asString();
+  //bool sec = req["sec"].asBool();
+
   Json::Value req;
   control.AsJson(req);
-  int overlay_id = req["overlay_id"].asInt();
-  string tap_name = req["tap_name"].asString();
-  string uid = req["uid"].asString();
-  string fpr = req["fpr"].asString();
-  string stun = req["stun"].asString();
-  string turn = req["turn"].asString();
-  string turn_user = req["turn_user"].asString();
-  string turn_pass = req["turn_pass"].asString();
-  string cas = req["cas"].asString();
-  bool sec = req["sec"].asBool();
-  //todo: Create Link
+  tincan_->CreateVnetLink(req);
+
 }
+
+void
+ControlDispatch::TrimLink(
+  TincanControl & control)
+{
+
+  Json::Value req;
+  control.AsJson(req);
+  const string tap_name = req["tap_name"].asString();
+  const string uid = req["uid"].asString();
+  if(!tap_name.empty() && !uid.empty())
+    tincan_->RemoveVnetLink(req);
+  else
+    LOG_F(LS_WARNING) << "Trim link request received, but the UID string is empty.";
+}
+
 //void 
 //ControlDispatch::SetLocalIp(
 //  TincanControl & control)
@@ -203,13 +221,6 @@ ControlDispatch::CreateLink(
 //  string ip6 = req["ip6"].asString();
 //  //TODO: set remote ip
 //}
-void ControlDispatch::TrimLink(TincanControl & control)
-{
-  Json::Value req;
-  control.AsJson(req);
-  string uid = req["uid"].asString();
-  //TODO:
-}
 
 void ControlDispatch::CreateCtrlEndpoint(
   TincanControl & control)
@@ -221,7 +232,7 @@ void ControlDispatch::CreateCtrlEndpoint(
   unique_ptr<SocketAddress> ctrl_addr(new SocketAddress(ip, port));
   dtol_->SetCtrlCb(move(ctrl_addr));
   ctrl_handle_ = &dtol_->GetControllerHandle();
-  dtot_->SetControllerHandle(*ctrl_handle_);
+  tincan_->SetControllerHandle(*ctrl_handle_);
 }
 
 void ControlDispatch::GetState(TincanControl & control)
@@ -241,15 +252,15 @@ void ControlDispatch::GetState(TincanControl & control)
   else {
     //TODO:
   }
-  dtot_->GetState(tap_name, itb, ite, peer_state);
-  dtot_->GetState(tap_name, local_state);
+  tincan_->GetState(tap_name, itb, ite, peer_state);
+  tincan_->GetState(tap_name, local_state);
   string resp = peer_state.toStyledString();;
   ctrl_handle_->Deliver(resp.c_str(), resp.length());
   resp = local_state.toStyledString();;
   ctrl_handle_->Deliver(resp.c_str(), resp.length());
 }
 
-void 
+void
 ControlDispatch::SetLogLevel(
   TincanControl & control)
 {
@@ -312,10 +323,10 @@ void ControlDispatch::SetNetworkIgnoreList(TincanControl & control)
   LOG_F(LS_INFO) << "Listed network device is ignored for TinCan connection"
     << network_ignore_list.toStyledString();
   vector<string> ignore_list(count);
-  for(int i = 0; i<count; i++) {
+  for(int i = 0; i < count; i++) {
     ignore_list[i] = network_ignore_list[i].asString();
   }
-  dtot_->SetIgnoredNetworkInterfaces(tap_name, ignore_list);
+  tincan_->SetIgnoredNetworkInterfaces(tap_name, ignore_list);
 }
 
 void ControlDispatch::SendICC(TincanControl & control)
@@ -328,24 +339,24 @@ void ControlDispatch::SendICC(TincanControl & control)
   //TODO: socket_-> SendToPeer(overlay_id, uid, fpr, method);
 }
 
-void 
+void
 ControlDispatch::CreateVNet(
   TincanControl & control)
 {
   Json::Value dict;
   control.AsJson(dict);
-  unique_ptr<LocalVnetEndpointConfig> cfg(new LocalVnetEndpointConfig);
-  cfg->gateway_ip = dict["gateway_ip"].asString();
+  unique_ptr<VnetDescriptor> cfg(new VnetDescriptor);
+  //cfg->gateway_ip = dict["gateway_ip"].asString();
   cfg->tap_name = dict["tap_name"].asString();
   cfg->uid = dict["uid"].asString();
   cfg->vip4 = dict["vip4"].asString();
   cfg->vip6 = dict["vip6"].asString();
-  cfg->xmpp_pw = dict["xmpp_pw"].asString();
-  cfg->xmpp_url = dict["xmpp_url"].asString();
-  cfg->xmpp_user = dict["xmpp_user"].asString();
+  //cfg->xmpp_pw = dict["xmpp_pw"].asString();
+  //cfg->xmpp_url = dict["xmpp_url"].asString();
+  //cfg->xmpp_user = dict["xmpp_user"].asString();
   cfg->switchmode_enabled = dict["xmpp_user"].asBool();
   cfg->trim_enabled = dict["trim_enabled"].asBool();
   cfg->translation_enabled = dict["translation_enabled"].asBool();
-  dtot_->CreateVNet(move(cfg));
+  tincan_->CreateVNet(move(cfg));
 }
 }  // namespace tincan

@@ -20,48 +20,39 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 */
-#include "peer_network.h"
+#include "remote_peer.h"
 
 namespace tincan
 {
-PeerNetwork::PeerNetwork(
-  const string & name) :
-  name_(name)
+RemotePeer::RemotePeer(
+  PeerDescriptor const & descriptor,
+  TapDev & tap_dev):
+  tap_(tap_dev)
 {}
 
-PeerNetwork::~PeerNetwork()
+RemotePeer::~RemotePeer()
 {}
 
-void PeerNetwork::Add(unique_ptr<RemotePeer> remote_peer)
+void
+RemotePeer::SetVirtualLink(
+  unique_ptr<VirtualLink> vlink)
 {
-  shared_ptr <RemotePeer> srp(remote_peer.release());
-  //peers_.push_back(srp);
-  ip4_map[srp->VirtIp4()] = srp;
-  ip6_map[srp->VirtIp6()] = srp;
-  uid_map[srp->Uid()] = srp;
-  mac_map[srp->MacAddress()] = srp;
+  vlink_ = move(vlink);
+  vlink_->StartConnections();
 }
 
-void PeerNetwork::Remove(
-  const string & peer_uid)
+void RemotePeer::TrimLink()
 {
-  auto & rp = uid_map.find(peer_uid);
-  if(rp != uid_map.end()) {
-    ip4_map.erase(rp->second->VirtIp4());
-    ip6_map.erase(rp->second->VirtIp6());
-    mac_map.erase(rp->second->MacAddress());
-    uid_map.erase(rp);
-  }
-  else
-    LOG_F(LS_INFO) << "Failed to peer with UID:" << peer_uid << "from peer network: "
-    << name_ << ". It was not found";
+  vlink_.reset();
 }
-
-RemotePeer &
-PeerNetwork::UidToPeer(
-  const string & id)
+void RemotePeer::SendFrame(TapFrame & frame)
 {
-  RemotePeer * rp = (uid_map.at(id)).get();
-  return *rp;
+  //TODO: tunneling
+  vlink_->Transmit(frame);
+}
+void RemotePeer::ReceiveFrame(TapFrame & frame)
+{
+  //TODO: tunneling
+  tap_.Write(frame);
 }
 } // namespace tincan

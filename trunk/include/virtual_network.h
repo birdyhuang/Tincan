@@ -25,32 +25,40 @@
 
 
 #include <memory>
-
+#pragma warning( push )
+#pragma warning(disable:4996)
+#pragma warning(disable:4100)
 #include "webrtc/base/network.h"
 #include "webrtc/base/sslidentity.h"
 #include "webrtc/base/thread.h"
-
+#pragma warning( pop )
 #include "controller_handle.h"
 #include "peer_network.h"
 #include "tapdev.h"
-#include "vnet_endpoint_config.h"
+#include "vnet_descriptor.h"
 //#include "xmppnetwork.h"
 
-namespace tincan {
+namespace tincan
+{
 
 class VirtualNetwork {
  public:
    VirtualNetwork(
-     unique_ptr<LocalVnetEndpointConfig> lvncfg,
+     unique_ptr<VnetDescriptor> descriptor,
      ControllerHandle & ctrl_handle);
+
   ~VirtualNetwork();
   void Configure();
   void Start();
   void Shutdown();
   void AddRemotePeer(
-    unique_ptr<VnetEndpointConfig> vecfg);
+    const PeerDescriptor & peer_desc,
+    unique_ptr<const VlinkDescriptor> vlink_desc);
 
-  LocalVnetEndpointConfig & LocalEndpointConfig();
+  void RemoveRemotePeer(
+    const string & peer_uid);
+
+  VnetDescriptor & LocalDescriptor();
 
   const string Name();
   const string HWAddress();
@@ -59,36 +67,11 @@ class VirtualNetwork {
 
   void IgnoredNetworkInterfaces(
     const vector<string>& ignored_list);
-
-  // Signal handlers for BasicNetworkManager
-  //virtual void OnNetworksChanged();
-
-  // Signal handlers for TransportChannelImpl
-  void OnRequestSignaling(
-    cricket::Transport* transport);
-  void OnRWChangeState(
-    cricket::Transport* transport);
-  void OnCandidatesReady(
-    cricket::Transport* transport,
-    const cricket::Candidates& candidates);
-  void OnCandidatesAllocationDone(
-    cricket::Transport* transport);
-  void OnReadPacket(
-    cricket::TransportChannel* channel,
-    const char* data, 
-    size_t len, 
-    const rtc::PacketTime & ptime, 
-    int flags);
-
-  // Inherited from MessageHandler
-  virtual void OnMessage(
-    rtc::Message* msg);
-
 private:
   rtc::BasicNetworkManager net_manager_;
   unique_ptr<rtc::SSLIdentity> sslid_;
   unique_ptr<rtc::SSLFingerprint> local_fingerprint_;
-  unique_ptr<LocalVnetEndpointConfig> config_;
+  unique_ptr<VnetDescriptor> descriptor_;
   TapDev * tdev_;
   PeerNetwork * peer_network_;
   ControllerHandle & ctrl_handle_;
