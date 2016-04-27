@@ -24,10 +24,21 @@
 #define TINCAN_ASYNCIO_H_
 
 #include <memory>
-#include <Winsock2.h>
-#include <minwinbase.h>
 #include "tap_frame.h"
 #include "frame_queue.h"
+
+#if defined(_IPOP_WIN)
+#include <Winsock2.h>
+#include <minwinbase.h>
+#elif defined(_IPOP_OSX)
+#include <aio.h>
+typedef unsigned long DWORD;
+typedef short WCHAR;
+typedef void * HANDLE;
+typedef unsigned char BYTE;
+typedef unsigned short WORD;
+typedef unsigned int BOOL;
+#endif
 
 namespace tincan
 {
@@ -37,7 +48,7 @@ struct ReadCompletion
   ReadCompletion(FrameQueue & iframe_queue) : iframe_queue(iframe_queue) {}
   int operator()(TapFrame & frame)
   {
-    //iframe_queue.push(frame);
+    iframe_queue.push(frame);
     return 0;
   }
   FrameQueue & iframe_queue;
@@ -58,7 +69,9 @@ struct WriteCompletion
 struct AsyncRead
 #if defined(_IPOP_WIN)
 : public OVERLAPPED
-#endif // defined(_IPOP_WIN)
+#elif defined(_IPOP_OSX)
+: public aiocb
+#endif // defined the parent class of aio
 {
   AsyncRead(unique_ptr<ReadCompletion> rd_cmpl) : completion(std::move(rd_cmpl)) {}
   HANDLE dev_handle;
