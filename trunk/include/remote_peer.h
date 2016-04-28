@@ -25,43 +25,35 @@
 #include <ws2tcpip.h>
 #include <stdint.h>
 #endif // defined(_IPOP_WIN)
+#include "controller_handle.h"
 #include "virtual_link.h"
 #include "vnet_descriptor.h"
-#include "tap_frame.h"
-#include "tapdev.h"
 namespace tincan
 {
 
-class RemotePeer : public FrameHandler
+class RemotePeer
 {
 public:
   RemotePeer(
-    PeerDescriptor const & descriptor,
-    TapDev & tap_dev);
+    PeerDescriptor const & descriptor);
 	~RemotePeer();
-  void SetVirtualLink(unique_ptr<VirtualLink> vlink);
+
+  void SetVirtualLink(
+    unique_ptr<VirtualLink> vlink);
+
   void TrimLink();
   const string & VirtIp4();
   const string & VirtIp6();
   const string & Uid();
   const string & MacAddress();
-  void SendFrame(TapFrame & frame);
-  void ReceiveFrame(TapFrame & frame);
 
 private:
-  string uid_; // 160bit unique identifier
-  struct in_addr virt_ip_;// the virtual IPv4 address that we see
-  struct in6_addr virt_ip_6;// the virtual IPv6 address that we see
+  const string & uid_;   // 160bit unique identifier
+  const string & vip4_;  // the virtual IPv4 address that we see
+  const string & vip6_;  // the virtual IPv6 address that we see
   // the actual address we send data to is in the CAS
-  unique_ptr<unsigned char[6]> mac_;// MAC address???
   unique_ptr<VirtualLink> vlink_;
   size_t last_time;
   bool is_connected; // hmm???
-  TapDev & tap_;
-  //size_t overlay_id_;
-  //string fingerprint_;
-//string connection_security;
-//uint16_t port; // The open port on the client that we're connected to
-//string id; // 160bit unique identifier
 };
 } // namespace tincan

@@ -28,21 +28,20 @@ VirtualNetwork::VirtualNetwork(
   unique_ptr<VnetDescriptor> descriptor,
   ControllerHandle & ctrl_handle) :
   tdev_(nullptr),
-//  xmpp_network_(nullptr),
   peer_network_(nullptr),
   descriptor_(move(descriptor)),
   ctrl_handle_(ctrl_handle)
 {
-
   tdev_ = new TapDev(
+    descriptor_->tap_name,
     make_unique<AsyncRead>(
       AsyncRead(make_unique<ReadCompletion>(
         ReadCompletion(fqr_)))),
     make_unique<AsyncWrite>(
       AsyncWrite((make_unique<WriteCompletion>(
         WriteCompletion(fqw_))))));
+
   peer_network_ = new PeerNetwork(descriptor->tap_name);
-  //xmpp_network_ = new XmppNetwork;
 }
 
 VirtualNetwork::~VirtualNetwork()
@@ -56,7 +55,7 @@ void
 VirtualNetwork::Configure()
 {
   //initialize the Tap Device
-  tdev_->Open(descriptor_->tap_name);
+  tdev_->Open();
   //tdev_->SetIp4Addr();
   //tdev_->SetIp4Route();
   
@@ -86,14 +85,22 @@ VirtualNetwork::AddRemotePeer(
   const PeerDescriptor & peer_desc,
   unique_ptr<const VlinkDescriptor> vlink_desc)
 {
-  unique_ptr<RemotePeer> rp = make_unique<RemotePeer>(peer_desc, *tdev_);
+  void (FrameHandler::*handler)(TapFrame & frame, VirtualLink & vlink) = &FrameHandler::ProcessIncomingFrame;
+
+  if(descriptor_->switchmode_enabled) {
+    handler = &FrameHandler::SwitchmodeProcessIncomingFrame;
+  }
+  unique_ptr<RemotePeer> rp = make_unique<RemotePeer>(peer_desc);
   unique_ptr<VirtualLink> vl = make_unique<VirtualLink>(
-    move(vlink_desc), *rp.get());
+    move(vlink_desc), 
+    make_unique<IncomingFrameHandler>(*this, handler),
+    *this);
 
   vl->Initialize(descriptor_->uid, 
     net_manager_, 
     *local_fingerprint_.get(), 
     *sslid_.get());
+
   rp->SetVirtualLink(move(vl));
   peer_network_->Add(move(rp));
 }
@@ -121,15 +128,8 @@ VirtualNetwork::Name()
 const string
 VirtualNetwork::HWAddress()
 {
-  unique_ptr<BYTE[]> hwa = tdev_->GetMacAddress(Name().c_str());
-  ostringstream mac;
-  for(short i = 0; i < 6; ++i) {
-    if(i != 0) mac << ':';
-    mac.width(2);
-    mac.fill('0');
-    mac << std::hex << ((int)hwa[i] & 0xff);
-  }
-  return mac.str();
+  unique_ptr<BYTE[]> hwa = tdev_->GetMacAddress();
+  return tdev_->MacAsString(move(hwa));
 }
 
 const string
@@ -144,4 +144,38 @@ VirtualNetwork::IgnoredNetworkInterfaces(
 {
   net_manager_.set_network_ignore_list(ignored_list);
 }
+
+void 
+VirtualNetwork::ProcessIncomingFrame(
+  TapFrame & frame, VirtualLink & vlink)
+{
+  if(frame.IsIccMsg()) {
+    ctrl_handle_.Deliver(frame);
+  }
+  else if(1) {
+    //process switch mode ARP request
+    vlink.Transmit(frame);
+  }
+
+  tdev_->Write(frame);
+}
+
+/*
+Performs tunneling and injects the packet into the the local
+system.
+*/
+void 
+VirtualNetwork::ProcessOutgoingFrame(
+  TapFrame & frame, VirtualLink & vlink)
+{
+  //TODO: tunneling
+  vlink.Transmit(frame);
+}
+
+void VirtualNetwork::SwitchmodeProcessIncomingFrame(TapFrame & frame, VirtualLink & vlink)
+{}
+
+void VirtualNetwork::SwitchmodeProcessOutgoingFrame(TapFrame & frame, VirtualLink & vlink)
+{}
+
 } //namespace tincan

@@ -34,6 +34,7 @@
 #pragma warning(default:4996)
 #include "control_dispatch.h"
 #include "synchronized.h"
+#include "tap_frame.h"
 #include "tincan_parameters.h"
 
 namespace tincan
@@ -56,6 +57,9 @@ public:
     const PacketTime & ptime);
   //
   //ControllerHandle interface implementation
+  void Deliver(
+    TapFrame & frame);
+
   void Deliver(
     const char * packet,
     size_t packet_len);

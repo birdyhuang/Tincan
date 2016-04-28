@@ -35,13 +35,14 @@
 #include "controller_handle.h"
 #include "peer_network.h"
 #include "tapdev.h"
+#include "tap_frame.h"
 #include "vnet_descriptor.h"
-//#include "xmppnetwork.h"
 
 namespace tincan
 {
 
-class VirtualNetwork {
+class VirtualNetwork : public FrameHandler
+{
  public:
    VirtualNetwork(
      unique_ptr<VnetDescriptor> descriptor,
@@ -67,6 +68,20 @@ class VirtualNetwork {
 
   void IgnoredNetworkInterfaces(
     const vector<string>& ignored_list);
+  //
+  //FrameHandler interface implementation
+  void ProcessIncomingFrame(
+    TapFrame & frame, VirtualLink & vlink);
+
+  void ProcessOutgoingFrame(
+    TapFrame & frame, VirtualLink & vlink);
+  
+  void SwitchmodeProcessIncomingFrame(
+    TapFrame & frame, VirtualLink & vlink);
+
+  void SwitchmodeProcessOutgoingFrame(
+    TapFrame & frame, VirtualLink & vlink);
+
 private:
   rtc::BasicNetworkManager net_manager_;
   unique_ptr<rtc::SSLIdentity> sslid_;

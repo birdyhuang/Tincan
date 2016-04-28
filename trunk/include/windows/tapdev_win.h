@@ -39,14 +39,19 @@ namespace windows
 class TapDevWin : public TapDevInf
 {
 public:
+  TapDevWin();
   TapDevWin(
+    const string & tap_name,
     unique_ptr<AsyncRead>async_rd,
-    unique_ptr<AsyncWrite> async_wr_);
+    unique_ptr<AsyncWrite> async_wr);
 
   ~TapDevWin();
 
+  void Open();
   void Open(
-    const string & device_name);
+    const string & tap_name,
+    unique_ptr<AsyncRead>async_rd,
+    unique_ptr<AsyncWrite> async_wr);
 
   void Close() {}
 
@@ -100,8 +105,10 @@ public:
     const string & option,
     const string & value);
 
-  unique_ptr<BYTE[]> GetMacAddress(
-    const string & device_name) const;
+  unique_ptr<BYTE[]> GetMacAddress() const;
+
+  const string MacAsString(
+    unique_ptr<BYTE[]>hw_address) const;
 
 protected:
 //  int SetFlags();
@@ -118,6 +125,7 @@ protected:
   bool is_read_started_;
   unique_ptr<AsyncRead> rd_overlap_;
   unique_ptr<AsyncWrite> wr_overlap_;
+  string tap_name_;
 };
 }  // namespace win
 }  // namespace tincan

@@ -91,6 +91,9 @@ void ControlListener::Deliver(
   socket_->SendTo(msg.c_str(), msg.length(), *controller_addr_.get(), packet_options_);
 }
 
+void ControlListener::Deliver(TapFrame & frame)
+{}
+
 void ControlListener::Deliver(
   const char * packet,
   size_t packet_len)

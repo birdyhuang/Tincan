@@ -20,6 +20,7 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 */
+#include "virtual_link.h"
 #include<memory>
 #pragma warning( push )
 #pragma warning(disable:4996)
@@ -28,7 +29,6 @@
 #include "webrtc/p2p/base/dtlstransport.h"
 #pragma warning( pop )
 #include "tap_frame.h"
-#include "virtual_link.h"
 namespace tincan
 {
 using namespace std;
@@ -36,9 +36,11 @@ using namespace rtc;
 
 VirtualLink::VirtualLink(
   unique_ptr<const VlinkDescriptor> vlink_desc,
-  FrameHandler & FrameRcvHandler) :
+  unique_ptr<IncomingFrameHandler> ifc,
+  FrameHandler & frame_handler) :
   vlink_desc_(move(vlink_desc)),
-  FrameRcvHandler_(FrameRcvHandler),
+  ifc_(move(ifc)),
+  frame_handler_(frame_handler),
   tiebreaker_(rtc::CreateRandomId64()),
   content_name_(vlink_desc_->name)
 {}
@@ -48,8 +50,6 @@ VirtualLink::~VirtualLink()
 
 void
 VirtualLink::Initialize(
-  //VlinkEvents & vlink_events,
-  //const VlinkDescriptor & vlink_cfg,
   const string & local_uid,
   BasicNetworkManager & network_manager,
   const SSLFingerprint & local_fingerprint,
@@ -99,7 +99,6 @@ VirtualLink::CreateCandidateConnections(
 
 void
 VirtualLink::CreateTransport(
-  //const VlinkDescriptor & vlink_cfg,
   BasicNetworkManager & network_manager,
   const SSLFingerprint & local_fingerprint,
   const SSLIdentity & sslid)
@@ -148,7 +147,7 @@ VirtualLink::OnReadPacket(
 {
   //TODO:
   TapFrame frame_((unsigned char*)data, len);
-  FrameRcvHandler_.ReceiveFrame(frame_);
+  (*ifc_.get())(frame_, *this);
 }
 
 void

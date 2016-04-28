@@ -44,9 +44,10 @@ const char TincanParameters::kFprNull[] =
 const uint32_t TincanParameters::kLocalControllerId = 0;
 const size_t TincanParameters::kIdBytesLen = 20;
 const size_t TincanParameters::kFlags = 0;
-unsigned short kUdpPort = 5800;
+unsigned short TincanParameters::kUdpPort = 5800;
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
   int rv = 0;
   try {
     Tincan tc;

@@ -454,8 +454,8 @@
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>kernel32.lib;user32.lib;advapi32.lib;shell32.lib;uuid.lib;odbc32.lib;%(AdditionalDependencies);iphlpapi.lib;boringssl.lib;boringssl_asm.lib;field_trial_default.lib;jsoncpp.lib;rtc_base.lib;rtc_base_approved.lib;rtc_p2p.lib;rtc_xmllite.lib;rtc_xmpp.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Users\kcratie\Vol1\workspace\kcratie\Tincan\external\lib\win;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>kernel32.lib;user32.lib;advapi32.lib;shell32.lib;uuid.lib;odbc32.lib;%(AdditionalDependencies);iphlpapi.lib;boringssl.lib;boringssl_asm.lib;field_trial_default.lib;jsoncpp.lib;rtc_base.lib;rtc_base_approved.lib;rtc_p2p.lib;rtc_xmllite.lib;rtc_xmpp.lib;ws2_32.lib;secur32.lib;winmm.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\external\lib\debug_x64\win;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

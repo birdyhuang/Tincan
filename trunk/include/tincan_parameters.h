@@ -37,7 +37,7 @@ public:
   static const char kIcePwd[];
 
   //
-  static int kUdpPort;
+  static unsigned short kUdpPort;
 
   //
   static const char kLocalHost[];

@@ -27,11 +27,16 @@
 #pragma warning(disable:4996)
 #include "webrtc/base/asyncpacketsocket.h"
 #pragma warning(default:4996)
+#include "tap_frame.h"
+
 namespace tincan {
 using namespace std;
   class ControllerHandle
   {
   public:
+    virtual void Deliver(
+      TapFrame & frame) = 0;
+
     virtual void Deliver(
       const char * packet,
       size_t packet_len) = 0;

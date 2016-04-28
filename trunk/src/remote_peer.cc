@@ -25,9 +25,10 @@
 namespace tincan
 {
 RemotePeer::RemotePeer(
-  PeerDescriptor const & descriptor,
-  TapDev & tap_dev):
-  tap_(tap_dev)
+  PeerDescriptor const & descriptor) :
+  uid_(descriptor.uid),
+  vip4_(descriptor.vip4),
+  vip6_(descriptor.vip6)
 {}
 
 RemotePeer::~RemotePeer()
@@ -45,14 +46,21 @@ void RemotePeer::TrimLink()
 {
   vlink_.reset();
 }
-void RemotePeer::SendFrame(TapFrame & frame)
+const string & 
+RemotePeer::VirtIp4()
 {
-  //TODO: tunneling
-  vlink_->Transmit(frame);
+  return vip4_;
 }
-void RemotePeer::ReceiveFrame(TapFrame & frame)
+const string & RemotePeer::VirtIp6()
 {
-  //TODO: tunneling
-  tap_.Write(frame);
+  return vip6_;
+}
+const string & RemotePeer::Uid()
+{
+  return uid_;
+}
+const string & RemotePeer::MacAddress()
+{
+  return string();
 }
 } // namespace tincan

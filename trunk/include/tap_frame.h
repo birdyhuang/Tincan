@@ -61,6 +61,12 @@ struct TapFrame
     return *this;
   }
 
+  bool IsIccMsg()
+  {
+    //TODO:
+    return false;
+  }
+
   unique_ptr<unsigned char[]>buffer;
   size_t sz;
 };

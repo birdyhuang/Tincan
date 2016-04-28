@@ -79,34 +79,36 @@ WriteCompletionRoutine(
     wr_overlap->frame.sz,
     (LPOVERLAPPED)&wr_overlap,
     (LPOVERLAPPED_COMPLETION_ROUTINE)WriteCompletionRoutine);
-
 }
 
-TapDevWin::TapDevWin(
-  unique_ptr<AsyncRead>async_rd,
-  unique_ptr<AsyncWrite> async_wr_) :
-  rd_overlap_(std::move(async_rd)),
-  wr_overlap_(std::move(async_wr_)),
+TapDevWin::TapDevWin():
   is_read_started_(false)
 {}
 
+TapDevWin::TapDevWin(
+  const string & tap_name,
+  unique_ptr<AsyncRead>async_rd,
+  unique_ptr<AsyncWrite> async_wr) :
+  rd_overlap_(move(async_rd)),
+  wr_overlap_(move(async_wr)),
+  is_read_started_(false)
+{}
 
 TapDevWin::~TapDevWin()
 {}
 
-void 
-TapDevWin::Open(
-  const string & device_name)
+void
+TapDevWin::Open()
 {
   int len = 0, status = 1;
   string device_guid;
 
-  NetDeviceNameToGuid(device_name, device_guid);
-  unique_ptr<BYTE[]>mac_adress = GetMacAddress(device_name);
+  NetDeviceNameToGuid(tap_name_, device_guid);
+  unique_ptr<BYTE[]>mac_adress = GetMacAddress();
   string device_path(USER_MODE_DEVICE_DIR_);
   device_path.append(device_guid).append(TAP_SUFFIX_);
   auto dev_handle = CreateFile(device_path.c_str(),
-    GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, 
+    GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING,
     FILE_ATTRIBUTE_SYSTEM | FILE_FLAG_OVERLAPPED, 0);
   if(INVALID_HANDLE_VALUE != dev_handle) {
     SetDevHandle(dev_handle);
@@ -117,6 +119,19 @@ TapDevWin::Open(
   else {
     throw WINEXCEPT("Failed CreateFile");
   }
+}
+
+void 
+TapDevWin::Open(
+  const string & tap_name,
+  unique_ptr<AsyncRead>async_rd,
+  unique_ptr<AsyncWrite> async_wr)
+{
+  tap_name_ = tap_name;
+  rd_overlap_ = move(async_rd);
+  wr_overlap_ = move(async_wr);
+
+  TapDevWin::Open();
 }
 
 void
@@ -228,8 +243,7 @@ void TapDevWin::SetDevHandle(HANDLE handle)
 }
 
 unique_ptr<BYTE[]>
-TapDevWin::GetMacAddress(
-  const string & device_name) const
+TapDevWin::GetMacAddress() const
 {
   unique_ptr<BYTE[]> mac_address;
   size_t num_addresses = 16;
@@ -247,7 +261,7 @@ TapDevWin::GetMacAddress(
   num_addresses = adptbuflen/sizeof(IP_ADAPTER_ADDRESSES);
   for(int i = 0; i < num_addresses; i++) {
     swprintf(tmp_name, 100, L"%s", pAddresses[i].FriendlyName);
-    swprintf(w_device_name, 100, L"%hs", device_name.c_str());
+    swprintf(w_device_name, 100, L"%hs", tap_name_.c_str());
     if(wcscmp(tmp_name, w_device_name) == 0) {
       mac_address.reset(new BYTE[MAX_ADAPTER_ADDRESS_LENGTH]);
       memset(mac_address.get(), 0, MAX_ADAPTER_ADDRESS_LENGTH);
@@ -257,6 +271,20 @@ TapDevWin::GetMacAddress(
     }
   }
   return move(mac_address);
+}
+
+const string
+TapDevWin::MacAsString(
+  unique_ptr<BYTE[]> hw_address) const
+{
+  ostringstream mac;
+  for(short i = 0; i < 6; ++i) {
+    if(i != 0) mac << ':';
+    mac.width(2);
+    mac.fill('0');
+    mac << std::hex << ((int)hw_address[i] & 0xff);
+  }
+  return mac.str();
 }
 
 void

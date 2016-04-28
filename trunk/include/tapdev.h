@@ -47,6 +47,7 @@ class TapDev : public
 {
 public:
   TapDev(
+    const string & tap_name,
     unique_ptr<AsyncRead>async_rd,
     unique_ptr<AsyncWrite> async_wr_);
 

@@ -23,8 +23,9 @@
 #ifndef TINCAN_TAPDEV_INF_H_
 #define TINCAN_TAPDEV_INF_H_
 
-#include "tap_frame.h"
 #include <string>
+#include "async_io.h"
+#include "tap_frame.h"
 
 namespace tincan
 {
@@ -33,8 +34,12 @@ using namespace std;
 class TapDevInf
 {
 public:
+  virtual void Open() = 0;
+
   virtual void Open(
-    const string & device_name) = 0;
+    const string & tap_name,
+    unique_ptr<AsyncRead>async_rd,
+    unique_ptr<AsyncWrite> async_wr) = 0;
 
   virtual void Close() = 0;
 
@@ -104,8 +109,10 @@ public:
     const string & option,
     const string & value) = 0;
 
-  virtual unique_ptr<unsigned char[]> GetMacAddress(
-    const string & device_name) const = 0;
+  virtual unique_ptr<unsigned char[]> GetMacAddress() const = 0;
+
+  virtual const string MacAsString(
+    unique_ptr<BYTE[]>hw_address) const = 0;
 };
 
 }  // namespace tincan

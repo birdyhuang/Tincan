@@ -15,7 +15,6 @@
 #include "webrtc/p2p/client/basicportallocator.h"
 //#include "webrtc/p2p/client/httpportallocator.h"
 #pragma warning( pop )
-//#include "vlink_events.h"
 #include "tap_frame.h"
 #include "tincan_parameters.h"
 
@@ -23,14 +22,57 @@ namespace tincan
 {
 typedef cricket::DtlsTransport<cricket::P2PTransport> DtlsP2PTransport;
 
-class FrameHandler
+/*
+Interface FrameHandler specifies the symantics for reading and writing of an
+IPOP TAP frame from the perspective of a remote peer. This is where the 
+tunneling behavior would be defined, in the class that realizes this interface.
+The functions ProcessOutgoingFrame() and ProcessIncomingFrame(), is to be
+interpreted w.r.t to the local virtual network. Consequently
+ProcessIncomingFrame is the request used when a frame is read from the remote
+peer via the virtual link (aka tincan link), to perform vnet tunneling and
+write the frame to the TAP device. ProcessOutgoingFrame is the request used to
+send a frame, which was read from the TAP device, to the remote peer via its
+virtual link.
+*/
+class VirtualLink;
+class  FrameHandler
 {
 public:
-  virtual void ReceiveFrame(TapFrame & frame) = 0;
-  virtual void SendFrame(TapFrame & frame) = 0;
+  virtual void ProcessOutgoingFrame(
+    TapFrame & frame, VirtualLink & vlink) = 0;
+
+  virtual void SwitchmodeProcessOutgoingFrame(
+    TapFrame & frame, VirtualLink & vlink) = 0;
+
+    virtual void ProcessIncomingFrame(
+      TapFrame & frame, VirtualLink & vlink) = 0;
+
+    virtual void SwitchmodeProcessIncomingFrame(
+      TapFrame & frame, VirtualLink & vlink) = 0;
 };
 
-struct VlinkDescriptor
+struct IncomingFrameHandler
+{
+  IncomingFrameHandler(
+    FrameHandler & fh,
+    void (FrameHandler::*ProcessIncomingFrame)(
+      TapFrame & frame, VirtualLink & vlink)) :
+      //FrameTransmit<VirtualLink> & transmit)) :
+    fh_(fh),
+    ProcessIncomingFrame_(ProcessIncomingFrame)
+  {}
+  void operator()(
+    TapFrame & frame, VirtualLink & vlink)
+  {
+    (fh_.*ProcessIncomingFrame_)(frame, vlink);
+  }
+
+  FrameHandler & fh_;
+  void (FrameHandler::*ProcessIncomingFrame_)(
+    TapFrame & frame, VirtualLink & vlink);
+};
+
+struct  VlinkDescriptor
 {
   bool sec_enabled;
   int overlay_id;
@@ -49,12 +91,11 @@ class VirtualLink : public sigslot::has_slots<>
 public:
   VirtualLink(
     unique_ptr<const VlinkDescriptor> vlink_desc,
-    FrameHandler & FrameRcvHandler);
+    unique_ptr<IncomingFrameHandler> ifc,
+  FrameHandler & frame_handler);
   ~VirtualLink();
-  
+
   void Initialize(
-   // VlinkEvents & vlink_events,
-    //const VlinkDescriptor & vlink_desc,
     const string & local_uid,
     rtc::BasicNetworkManager & network_manager,
     const rtc::SSLFingerprint & local_fingerprint,
@@ -63,9 +104,6 @@ public:
   void StartConnections();
 
   void Transmit(TapFrame & frame);
-
-  //void LocalFingerprint(
-  //  const rtc::SSLFingerprint & local_fingerprint);
 
 private:
   void CreateTransport(
@@ -83,7 +121,7 @@ private:
 
   void CreateCandidateConnections(
     const string & candidates);
-  
+
   void SetupTransport(
     const string & local_uid,
     const rtc::SSLFingerprint & local_fingerprint,
@@ -114,8 +152,8 @@ private:
   string connection_security_;
   TincanParameters params_;
   const string & content_name_;
-  FrameHandler & FrameRcvHandler_;
+  FrameHandler & frame_handler_;
+  unique_ptr<IncomingFrameHandler> ifc_;
 };
-
 } //namespace tincan
 #endif // !_TINCAN_TINCAN_LINK_H_
