@@ -83,6 +83,10 @@ ipch/
 *.vsp
 *.vspx
 
+# Xcode profiles
+*.xcodeproj
+
+
 # TFS 2012 Local Workspace
 $tf/
 

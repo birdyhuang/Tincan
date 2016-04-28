@@ -9,13 +9,12 @@ TapDev::TapDev(
   unique_ptr<AsyncWrite> async_wr_) :
 #if defined(_IPOP_WIN)
   TapDevWin(tap_name, move(async_rd), move(async_wr_))
-#elif defined(_IPOP_LINUX)
-  TapDevLnx(async_rd), std::move(async_wr_))
 #elif defined(_IPOP_OSX)
-  TapDevMac(async_rd), std::move(async_wr_))
+  TapDevOsx(tap_name, move(async_rd), move(async_wr_))
+#elif defined(_IPOP_LINUX)
+  TapDevLnx(tap_name, move(async_rd), move(async_wr_))
 #endif
 {}
-
 
 TapDev::~TapDev()
 {}

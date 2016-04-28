@@ -20,39 +20,58 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 */
-#ifndef TINCAN_TAPDEV_H_
-#define TINCAN_TAPDEV_H_
 
-#include "async_io.h"
-#include "tap_frame.h"
+#pragma once
 
-#if defined(_IPOP_LINUX)
-#include "linux/tapdev_lnx.h"
-#elif defined(_IPOP_OSX)
-#include "osx/tapdev_osx.h"
-#elif defined(_IPOP_WIN)
-#include "windows/tapdev_win.h"
-#endif
+#include <sstream>
+#include <string>
+#include <exception>
+#include <cstdlib>
+#include <errno.h>
+using namespace std;
+
 
 namespace tincan {
 
-class TapDev : public
-#if defined(_IPOP_LINUX)
-  linux::TapDevLnx
-#elif defined(_IPOP_OSX)
-  osx::TapDevOsx
-#elif defined(_IPOP_WIN)
-  windows::TapDevWin
-#endif
-{
-public:
-  TapDev(
-    const string & tap_name,
-    unique_ptr<AsyncRead>async_rd,
-    unique_ptr<AsyncWrite> async_wr_);
+namespace osx {
 
-  virtual ~TapDev();
+#define OSXEXCEPT(ExtendedErrorInfo) 	OsxException(ExtendedErrorInfo, __FILE__, __LINE__)
+typedef char* LPSTR;
+
+class OsxException : public runtime_error {
+    string msg;
+
+public:
+    __inline OsxException(const string &arg, const char *file, int line);
+    __inline OsxException();
+    __inline ~OsxException();
+    __inline const char* what() const noexcept;
 };
 
-}  // namespace tincan
-#endif  // TINCAN_TAPDEV_H_
+OsxException::OsxException(const string &arg, const char *file, int line) :
+runtime_error(arg)
+{
+    ostringstream o;
+    o << file << ":" << line << ": " << arg;
+    msg = o.str();
+}
+
+//OsxException::OsxException() : runtime_error::runtime_error("Exception")
+//{
+//    OsxException("Exception", __FILE__, __LINE__);
+//}
+
+OsxException::~OsxException()
+{
+  //delete mSourceFile;
+  //delete mHostErrorInfo;
+  //delete mExtendedErrorInfo;
+}
+
+const char* OsxException::what() const noexcept
+{
+  return msg.c_str();
+}
+
+}
+}
