@@ -55,8 +55,8 @@ ReadCompletionRoutine(
   rdcompl(rd_overlap->frame);  //packet processing
   //issue new async read request
   ReadFileEx(rd_overlap->dev_handle,
-    rd_overlap->frame.buffer.get(),
-    rd_overlap->frame.sz,
+    rd_overlap->frame.Data(),
+    rd_overlap->frame.Capacity(),
     (LPOVERLAPPED)&rd_overlap,
     (LPOVERLAPPED_COMPLETION_ROUTINE)ReadCompletionRoutine);
 
@@ -75,8 +75,8 @@ WriteCompletionRoutine(
   wrcompl(wr_overlap->frame);//get data for new write
   //issue new async write request
   WriteFileEx(wr_overlap->dev_handle,
-    wr_overlap->frame.buffer.get(),
-    wr_overlap->frame.sz,
+    wr_overlap->frame.Data(),
+    wr_overlap->frame.Capacity(),
     (LPOVERLAPPED)&wr_overlap,
     (LPOVERLAPPED_COMPLETION_ROUTINE)WriteCompletionRoutine);
 }
@@ -89,6 +89,7 @@ TapDevWin::TapDevWin(
   const string & tap_name,
   unique_ptr<AsyncRead>async_rd,
   unique_ptr<AsyncWrite> async_wr) :
+  tap_name_(tap_name),
   rd_overlap_(move(async_rd)),
   wr_overlap_(move(async_wr)),
   is_read_started_(false)
@@ -139,12 +140,12 @@ TapDevWin::StartRead()
 {
   if(is_read_started_)
     return;//assert?
-  if(!rd_overlap_->frame.buffer)
-    rd_overlap_->frame.buffer = make_unique<BYTE[]>(rd_overlap_->frame.sz);
+  //if(!rd_overlap_->frame.FrameData())
+  //  rd_overlap_->frame.buffer = make_unique<BYTE[]>(rd_overlap_->frame.sz);
   is_read_started_ = true;
   ReadFileEx(rd_overlap_->dev_handle,
-    rd_overlap_->frame.buffer.get(),
-    rd_overlap_->frame.sz,
+    rd_overlap_->frame.Data(),
+    (unsigned long)rd_overlap_->frame.Capacity(),
     (LPOVERLAPPED)&rd_overlap_,
     (LPOVERLAPPED_COMPLETION_ROUTINE)ReadCompletionRoutine);
   return;
@@ -156,8 +157,8 @@ TapDevWin::Write(
 {
   //wr_overlap_->frame = aframe;
   WriteFileEx(wr_overlap_->dev_handle,
-    wr_overlap_->frame.buffer.get(),
-    wr_overlap_->frame.sz,
+    wr_overlap_->frame.Data(),
+    (unsigned long)wr_overlap_->frame.Capacity(),
     (LPOVERLAPPED)&wr_overlap_,
     (LPOVERLAPPED_COMPLETION_ROUTINE)WriteCompletionRoutine);
   return;

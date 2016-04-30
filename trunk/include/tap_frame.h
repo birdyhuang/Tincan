@@ -24,53 +24,108 @@
 #define TINCAN_TAPFRAME_H_
 
 #include <memory>
-
+#include <string>
+#include "tincan_parameters.h"
 namespace tincan
 {
-
 using namespace std;
-struct TapFrame
+class TapFrame
 {
-  TapFrame() : sz(0) {}
-
-  explicit TapFrame(unsigned int frame_sz) :
-    sz(frame_sz),
-    buffer(make_unique<unsigned char[]>(frame_sz)) {}
-
-  TapFrame(unsigned char * data, size_t len) : 
-    sz(len), buffer(data)
+  friend class FrameProperties;
+public:
+  TapFrame() :
+    fd_capacity_(TincanParameters::kBufferSize),
+    hdr_capacity_(TincanParameters::kFrameHeaderSize),
+    data_(new uint8_t[hdr_capacity_ + fd_capacity_])
   {}
-  
-  TapFrame(TapFrame & frame)
-  {
-    *this = frame;
-  }
-  
+
+  TapFrame(const TapFrame & frame)
+  {}
+
+  TapFrame(TapFrame && frame)
+  {}
+
+  //creates frame + header
+  explicit TapFrame(size_t frame_sz)
+  {}
+
+  TapFrame(unsigned char * data, size_t len)
+  {}
+
   TapFrame & operator= (const TapFrame & rhs)
-  {
-    if(this == &rhs) return *this;
-    this->buffer = std::make_unique<unsigned char[]>(rhs.sz);
-    memcpy(this->buffer.get(), rhs.buffer.get(), rhs.sz);
-    this->sz = rhs.sz;
-    return *this;
-  }
+  {}
 
   TapFrame &operator= (TapFrame && rhs)
+  {}
+
+  bool operator==(const TapFrame & frame) const
+  {}
+
+  bool operator!=(const TapFrame & frame) const
   {
-    if(this == &rhs) return *this;
-    this->buffer = std::move(rhs.buffer);
-    this->sz = rhs.sz;
-    return *this;
+    return !(*this == frame);
   }
 
-  bool IsIccMsg()
-  {
-    //TODO:
-    return false;
-  }
+  uint8_t operator[](size_t index)
+  {}
 
-  unique_ptr<unsigned char[]>buffer;
-  size_t sz;
+  void SetSourceUid(const string & src_uid)
+  {}
+
+  void SetDestinationUid(const string & dest_uid)
+  {}
+
+  void SetFrameData(uint8_t frm_data, size_t len)
+  {}
+  string & SourceUid()
+  {}
+
+  string & DestinationUid()
+  {}
+
+  uint8_t * Header()
+  {}
+
+  uint8_t * Data();
+
+  size_t Capacity();
+
+  void SwapUids()
+  {}
+
+private:
+  size_t hdr_capacity_;
+  size_t fd_sz_;
+  size_t fd_capacity_;
+  unique_ptr<uint8_t[]> data_;
+  uint8_t itr_;
+
 };
+
+class FrameProperties{
+public:
+  FrameProperties(TapFrame & frame) :
+    frame_(frame)
+  {}
+
+  bool IsIccMsg() const;
+
+  bool IsIp4() const;
+
+  bool IsIp6() const;
+
+  bool IsArpRequest() const;
+
+  bool IsArpResponse() const;
+
+  bool IsUnicast() const;
+
+  bool IsBroadcast() const;
+
+
+private:
+  const TapFrame & frame_;
+};
+
 }
 #endif  // TINCAN_TAPFRAME_H_

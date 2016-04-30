@@ -32,12 +32,12 @@
 #include <minwinbase.h>
 #elif defined(_IPOP_OSX)
 #include <aio.h>
-typedef unsigned long DWORD;
-typedef short WCHAR;
-typedef void * HANDLE;
-typedef unsigned char BYTE;
-typedef unsigned short WORD;
-typedef unsigned int BOOL;
+using DWORD = unsigned long;
+using WCHAR = short;
+using HANDLE = void *;
+using BYTE = unsigned char;
+using WORD = unsigned short;
+using BOOL = unsigned int;
 #endif
 
 namespace tincan
@@ -48,7 +48,7 @@ struct ReadCompletion
   ReadCompletion(FrameQueue & iframe_queue) : iframe_queue(iframe_queue) {}
   int operator()(TapFrame & frame)
   {
-    iframe_queue.push(frame);
+    //iframe_queue.push(frame);
     return 0;
   }
   FrameQueue & iframe_queue;
@@ -59,8 +59,6 @@ struct WriteCompletion
   WriteCompletion(FrameQueue & oframe_queue) : oframe_queue(oframe_queue) {}
   int operator()(TapFrame & frame)
   {
-    oframe_queue.front();
-    oframe_queue.pop();
     return 0;
   }
   FrameQueue & oframe_queue;

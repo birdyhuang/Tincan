@@ -22,17 +22,23 @@
 */
 #include "tincan.h"
 #include <cstddef>
+#include <iostream>
 
 using namespace tincan;
-const char TincanParameters::kContentName[] = "ipop-";
+using namespace std;
+
+const unsigned short TincanParameters::kTincanVerMjr = 2;
+const unsigned short TincanParameters::kTincanVerMnr = 0;
+const unsigned short TincanParameters::kTincanVerRev = 0;
 const char TincanParameters::kIceUfrag[] = "ufrag";
 const char TincanParameters::kIcePwd[] = "pwd";
 const char TincanParameters::kLocalHost[] = "127.0.0.1";
 const char TincanParameters::kLocalHost6[] = "::1";
 const char TincanParameters::kIpv4[] = "172.31.0.100";
 const char TincanParameters::kIpv6[] = "fd50:0dbc:41f2:4a3c:0000:0000:0000:0000";
-const int TincanParameters::kDefaultXmppPort = 5222;
-const int TincanParameters::kBufferSize = 1024;
+const unsigned short TincanParameters::kDefaultXmppPort = 5222;
+const unsigned short TincanParameters::kFrameHeaderSize = 40;
+const unsigned short TincanParameters::kBufferSize = 1024;
 //const int TincanParameters::kBufferSize = 1500;
 const char TincanParameters::kIpopVer = 0x03;
 const char TincanParameters::kTincanControl = 0x01;
@@ -42,17 +48,35 @@ const char TincanParameters::kICCPacket = 0x04;
 const char TincanParameters::kFprNull[] =
 "00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00";
 const uint32_t TincanParameters::kLocalControllerId = 0;
-const size_t TincanParameters::kIdBytesLen = 20;
+const unsigned short TincanParameters::kIdBytesLen = 20;
 const size_t TincanParameters::kFlags = 0;
 unsigned short TincanParameters::kUdpPort = 5800;
+bool TincanParameters::kVersionCheck = false;
+bool TincanParameters::kNeedsHelp = false;
 
 int main(int argc, char **argv)
 {
   int rv = 0;
   try {
+    TincanParameters tp;
+    tp.ParseCmdlineArgs(argc, argv);
+    if(tp.kVersionCheck) {
+      cout << TincanParameters::kTincanVerMjr << "." 
+        << TincanParameters::kTincanVerMnr << "." 
+        << TincanParameters::kTincanVerRev << endl;
+    }
+    else if(tp.kNeedsHelp) {
+      std::cout << endl << "---OPTIONAL---" << endl
+        << "To use a custom listener port:" << endl
+        << "-p=portno" << endl
+        << "ex --sudo sh -c './ipop-tincan -p=5805 1> out.log 2> err.log &'"
+        << endl;
+    }
+    else {
     Tincan tc;
     tc.Start();
     tc.Shutdown();
+    }
   }
   catch(exception & e) {
     rv = -1;
@@ -60,5 +84,4 @@ int main(int argc, char **argv)
   }
 
   return rv;
-
 }

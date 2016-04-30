@@ -37,10 +37,10 @@
 #include "tapdev.h"
 #include "tap_frame.h"
 #include "vnet_descriptor.h"
+#include "virtual_link.h"
 
 namespace tincan
 {
-
 class VirtualNetwork : public FrameHandler
 {
  public:

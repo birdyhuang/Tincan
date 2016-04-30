@@ -32,7 +32,7 @@
 #endif
 
 namespace tincan {
-#define TCEXCEPT(ExtendedErrorInfo) 	TinCanException(ExtendedErrorInfo, __FILE__, __LINE__)
+#define TCEXCEPT(ExtendedErrorInfo) 	TincanException(ExtendedErrorInfo, __FILE__, __LINE__)
 
   class TincanException : public
 #if defined(_IPOP_LINUX)
@@ -56,7 +56,6 @@ public:
     windows::WinException(ExtendedErrorInfo, SourceFile, SourceLine)
 #endif
   {}
-  ~TincanException();
-  };
+};
 } // namespace tincan
 #endif  // TINCAN_EXCEPTION_H_

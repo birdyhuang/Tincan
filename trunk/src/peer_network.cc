@@ -53,15 +53,35 @@ void PeerNetwork::Remove(
     uid_map.erase(rp);
   }
   else
-    LOG_F(LS_INFO) << "Failed to peer with UID:" << peer_uid << "from peer network: "
-    << name_ << ". It was not found";
+    LOG_F(LS_INFO) << "Failed to peer with UID:" << peer_uid 
+    << "from peer network: " << name_ << ". It was not found";
 }
 
 RemotePeer &
 PeerNetwork::UidToPeer(
-  const string & id)
+  const string & id) const
 {
-  RemotePeer * rp = (uid_map.at(id)).get();
-  return *rp;
+  return *uid_map.at(id).get();
+}
+
+RemotePeer &
+PeerNetwork::Ip4ToPeer(
+  const string & ip4) const
+{
+  return *ip4_map.at(ip4).get();
+}
+
+RemotePeer &
+PeerNetwork::Ip6ToPeer(
+  const string & ip6) const
+{
+  return *ip6_map.at(ip6).get();
+}
+
+RemotePeer &
+PeerNetwork::MacAddressToPeer(
+  const string & mac) const
+{
+  return *mac_map.at(mac).get();
 }
 } // namespace tincan

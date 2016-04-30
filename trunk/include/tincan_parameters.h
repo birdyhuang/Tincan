@@ -27,8 +27,26 @@ namespace tincan
 class TincanParameters
 {
 public:
+  void ParseCmdlineArgs(
+    int argc,
+    char **args)
+  {
+    if(argc == 2 && strncmp(args[1], "-v", 2) == 0) {
+      kVersionCheck = true;
+    }
+    else if(argc == 2 && strncmp(args[1], "-h", 2) == 0) {
+      kNeedsHelp;
+    }
+    if(argc == 2 && strncmp(args[1], "-p=", 3) == 0) {
+      TincanParameters::kUdpPort = (unsigned short)atoi(args[1]+3);
+    }
+  }
   //
-  static const char kContentName[];
+  static const unsigned short kTincanVerMjr;
+
+  static const unsigned short kTincanVerMnr;
+
+  static const unsigned short kTincanVerRev;
 
   //
   static const char kIceUfrag[];
@@ -52,10 +70,12 @@ public:
   static const char kIpv6[];
 
   //
-  static const int kDefaultXmppPort;
+  static const unsigned short kDefaultXmppPort;
 
   //
-  static const int kBufferSize;
+  static const unsigned short kBufferSize;
+
+  static const unsigned short kFrameHeaderSize;
 
   //
   static const char kIpopVer;
@@ -82,7 +102,11 @@ public:
   static const uint32_t kLocalControllerId;
 
   //
-  static const size_t kIdBytesLen;
+  static const unsigned short kIdBytesLen;
+
+  static bool kVersionCheck;
+
+  static bool kNeedsHelp;
 
 };
 } // namespace tincan

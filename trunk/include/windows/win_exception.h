@@ -44,7 +44,7 @@ namespace tincan
 {
 namespace windows
 {
-#define WINEXCEPT(ExtendedErrorInfo) 	WinException(ExtendedErrorInfo, __FILE__, __LINE__)
+#define WINEXCEPT(ExtendedErrorInfo) WinException(ExtendedErrorInfo, __FILE__, __LINE__)
 
 class WinException : virtual public exception
 {
@@ -90,11 +90,7 @@ WinException::WinException() :exception()
 }
 
 WinException::~WinException()
-{
-  //delete mSourceFile;
-  //delete mHostErrorInfo;
-  //delete mExtendedErrorInfo;
-}
+{}
 
 void WinException::BuildMsg()
 {

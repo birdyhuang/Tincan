@@ -36,7 +36,10 @@ public:
   void Add(unique_ptr<RemotePeer> remote_peer);
   void Remove(const string & peer_uid);
   
-  RemotePeer & UidToPeer(const string & id);
+  RemotePeer & UidToPeer(const string & id) const;
+  RemotePeer & Ip4ToPeer(const string & ip4) const;
+  RemotePeer & Ip6ToPeer(const string & ip6) const;
+  RemotePeer & MacAddressToPeer(const string & mac) const;
 private:
   const string & name_;
   //list of remote peer nodes on this virt net

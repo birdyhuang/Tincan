@@ -27,7 +27,7 @@
 #include "tap_frame.h"
 
 namespace tincan {
-  using FrameQueue = std::queue<TapFrame>;
+  using FrameQueue = std::queue<unique_ptr<TapFrame>>;
 
 }
 #endif  // TINCAN_FRAME_QUEUE_H_

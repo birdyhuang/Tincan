@@ -29,8 +29,8 @@
 using namespace std;
 #include <memory>
 #include <Winsock2.h>
-#include "tapdev_inf.h"
 #include "async_io.h"
+#include "tapdev_inf.h"
 
 namespace tincan
 {

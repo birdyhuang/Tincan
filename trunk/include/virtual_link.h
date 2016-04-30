@@ -4,6 +4,7 @@
 #pragma warning( push )
 #pragma warning(disable:4996)
 #pragma warning(disable:4100)
+#pragma warning(disable:4459)
 #include "webrtc/base/asyncpacketsocket.h"
 #include "webrtc/base/sslfingerprint.h"
 #include "webrtc/base/network.h"
@@ -20,7 +21,7 @@
 
 namespace tincan
 {
-typedef cricket::DtlsTransport<cricket::P2PTransport> DtlsP2PTransport;
+using DtlsP2PTransport = cricket::DtlsTransport<cricket::P2PTransport>;
 
 /*
 Interface FrameHandler specifies the symantics for reading and writing of an
@@ -35,7 +36,8 @@ send a frame, which was read from the TAP device, to the remote peer via its
 virtual link.
 */
 class VirtualLink;
-class  FrameHandler
+//template<typename _VLINK>
+class FrameHandler
 {
 public:
   virtual void ProcessOutgoingFrame(
@@ -51,13 +53,13 @@ public:
       TapFrame & frame, VirtualLink & vlink) = 0;
 };
 
+//template<typename _VLINK>
 struct IncomingFrameHandler
 {
   IncomingFrameHandler(
     FrameHandler & fh,
     void (FrameHandler::*ProcessIncomingFrame)(
       TapFrame & frame, VirtualLink & vlink)) :
-      //FrameTransmit<VirtualLink> & transmit)) :
     fh_(fh),
     ProcessIncomingFrame_(ProcessIncomingFrame)
   {}
@@ -91,8 +93,7 @@ class VirtualLink : public sigslot::has_slots<>
 public:
   VirtualLink(
     unique_ptr<const VlinkDescriptor> vlink_desc,
-    unique_ptr<IncomingFrameHandler> ifc,
-  FrameHandler & frame_handler);
+    unique_ptr<IncomingFrameHandler> ifh);
   ~VirtualLink();
 
   void Initialize(
@@ -107,7 +108,6 @@ public:
 
 private:
   void CreateTransport(
-    //const VlinkDescriptor & vlink_cfg,
     rtc::BasicNetworkManager & network_manager,
     const rtc::SSLFingerprint & local_fingerprint,
     const rtc::SSLIdentity & sslid);
@@ -152,8 +152,7 @@ private:
   string connection_security_;
   TincanParameters params_;
   const string & content_name_;
-  FrameHandler & frame_handler_;
-  unique_ptr<IncomingFrameHandler> ifc_;
+  unique_ptr<IncomingFrameHandler> iframehandler_;
 };
 } //namespace tincan
 #endif // !_TINCAN_TINCAN_LINK_H_

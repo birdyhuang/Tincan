@@ -29,6 +29,8 @@
 #include "webrtc/p2p/base/dtlstransport.h"
 #pragma warning( pop )
 #include "tap_frame.h"
+#include "tincan_exception.h"
+
 namespace tincan
 {
 using namespace std;
@@ -36,11 +38,9 @@ using namespace rtc;
 
 VirtualLink::VirtualLink(
   unique_ptr<const VlinkDescriptor> vlink_desc,
-  unique_ptr<IncomingFrameHandler> ifc,
-  FrameHandler & frame_handler) :
+  unique_ptr<IncomingFrameHandler> ifh) :
   vlink_desc_(move(vlink_desc)),
-  ifc_(move(ifc)),
-  frame_handler_(frame_handler),
+  iframehandler_(move(ifh)),
   tiebreaker_(rtc::CreateRandomId64()),
   content_name_(vlink_desc_->name)
 {}
@@ -94,6 +94,8 @@ VirtualLink::CreateCandidateConnections(
   } while(iss);
   string err;
   bool rv = transport_->AddRemoteCandidates(*candidates_.get(), &err);
+  if(!rv)
+    throw TCEXCEPT("Failed to add remote candidates");
   return;
 }
 
@@ -107,12 +109,12 @@ VirtualLink::CreateTransport(
   stun_addr.FromString(vlink_desc_->stun_addr);
   port_allocator_.reset(new cricket::BasicPortAllocator(
     &network_manager, &packet_factory_, { stun_addr }));
-  port_allocator_->set_flags(params_.kFlags);
+  port_allocator_->set_flags((uint32_t)params_.kFlags);
 
   SetupTURN(vlink_desc_->turn_addr, vlink_desc_->turn_user, vlink_desc_->turn_pass);
 
   int component = cricket::ICE_CANDIDATE_COMPONENT_DEFAULT;
-  //TODO:
+  //TODO: fix CreateTransport
   rtc::scoped_refptr<rtc::RTCCertificate> cert;
   //scoped_ptr<SSLIdentity> identity;
   cert->Create(scoped_ptr<SSLIdentity>());
@@ -145,9 +147,8 @@ VirtualLink::OnReadPacket(
   const rtc::PacketTime & ptime,
   int flags)
 {
-  //TODO:
-  TapFrame frame_((unsigned char*)data, len);
-  (*ifc_.get())(frame_, *this);
+  //TapFrame frame((unsigned char*)data, len);
+  //(*iframehandler_.get())(frame, *this);
 }
 
 void

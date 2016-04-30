@@ -93,8 +93,7 @@ VirtualNetwork::AddRemotePeer(
   unique_ptr<RemotePeer> rp = make_unique<RemotePeer>(peer_desc);
   unique_ptr<VirtualLink> vl = make_unique<VirtualLink>(
     move(vlink_desc), 
-    make_unique<IncomingFrameHandler>(*this, handler),
-    *this);
+    make_unique<IncomingFrameHandler>(*this, handler));
 
   vl->Initialize(descriptor_->uid, 
     net_manager_, 
@@ -147,9 +146,11 @@ VirtualNetwork::IgnoredNetworkInterfaces(
 
 void 
 VirtualNetwork::ProcessIncomingFrame(
-  TapFrame & frame, VirtualLink & vlink)
+  TapFrame & frame,
+  VirtualLink & vlink)
 {
-  if(frame.IsIccMsg()) {
+  FrameProperties fp(frame);
+  if(fp.IsIccMsg()) {
     ctrl_handle_.Deliver(frame);
   }
   else if(1) {
@@ -166,16 +167,27 @@ system.
 */
 void 
 VirtualNetwork::ProcessOutgoingFrame(
-  TapFrame & frame, VirtualLink & vlink)
+  TapFrame & frame,
+  VirtualLink & vlink)
 {
   //TODO: tunneling
   vlink.Transmit(frame);
 }
 
-void VirtualNetwork::SwitchmodeProcessIncomingFrame(TapFrame & frame, VirtualLink & vlink)
-{}
+void 
+VirtualNetwork::SwitchmodeProcessIncomingFrame(
+  TapFrame & frame, 
+  VirtualLink & vlink)
+{  //TODO: tunneling
+  vlink.Transmit(frame);
+}
 
-void VirtualNetwork::SwitchmodeProcessOutgoingFrame(TapFrame & frame, VirtualLink & vlink)
-{}
+void
+VirtualNetwork::SwitchmodeProcessOutgoingFrame(
+  TapFrame & frame, 
+  VirtualLink & vlink)
+{  //TODO: tunneling
+  vlink.Transmit(frame);
+}
 
 } //namespace tincan
