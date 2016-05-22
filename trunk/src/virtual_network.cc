@@ -149,7 +149,7 @@ VirtualNetwork::ProcessIncomingFrame(
   TapFrame & frame,
   VirtualLink & vlink)
 {
-  FrameProperties fp(frame);
+  TapFrameProperties fp(frame);
   if(fp.IsIccMsg()) {
     ctrl_handle_.Deliver(frame);
   }

@@ -48,7 +48,7 @@ const char TincanParameters::kICCPacket = 0x04;
 const char TincanParameters::kFprNull[] =
 "00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00";
 const uint32_t TincanParameters::kLocalControllerId = 0;
-const unsigned short TincanParameters::kIdBytesLen = 20;
+const unsigned short TincanParameters::kUidLen = 20;
 const size_t TincanParameters::kFlags = 0;
 unsigned short TincanParameters::kUdpPort = 5800;
 bool TincanParameters::kVersionCheck = false;

@@ -55,7 +55,7 @@ ReadCompletionRoutine(
   rdcompl(rd_overlap->frame);  //packet processing
   //issue new async read request
   ReadFileEx(rd_overlap->dev_handle,
-    rd_overlap->frame.Data(),
+    rd_overlap->frame.Payload(),
     rd_overlap->frame.Capacity(),
     (LPOVERLAPPED)&rd_overlap,
     (LPOVERLAPPED_COMPLETION_ROUTINE)ReadCompletionRoutine);
@@ -75,7 +75,7 @@ WriteCompletionRoutine(
   wrcompl(wr_overlap->frame);//get data for new write
   //issue new async write request
   WriteFileEx(wr_overlap->dev_handle,
-    wr_overlap->frame.Data(),
+    wr_overlap->frame.Payload(),
     wr_overlap->frame.Capacity(),
     (LPOVERLAPPED)&wr_overlap,
     (LPOVERLAPPED_COMPLETION_ROUTINE)WriteCompletionRoutine);
@@ -140,11 +140,11 @@ TapDevWin::StartRead()
 {
   if(is_read_started_)
     return;//assert?
-  //if(!rd_overlap_->frame.FrameData())
+  //if(!rd_overlap_->frame.Payload())
   //  rd_overlap_->frame.buffer = make_unique<BYTE[]>(rd_overlap_->frame.sz);
   is_read_started_ = true;
   ReadFileEx(rd_overlap_->dev_handle,
-    rd_overlap_->frame.Data(),
+    rd_overlap_->frame.Payload(),
     (unsigned long)rd_overlap_->frame.Capacity(),
     (LPOVERLAPPED)&rd_overlap_,
     (LPOVERLAPPED_COMPLETION_ROUTINE)ReadCompletionRoutine);
@@ -157,7 +157,7 @@ TapDevWin::Write(
 {
   //wr_overlap_->frame = aframe;
   WriteFileEx(wr_overlap_->dev_handle,
-    wr_overlap_->frame.Data(),
+    wr_overlap_->frame.Payload(),
     (unsigned long)wr_overlap_->frame.Capacity(),
     (LPOVERLAPPED)&wr_overlap_,
     (LPOVERLAPPED_COMPLETION_ROUTINE)WriteCompletionRoutine);

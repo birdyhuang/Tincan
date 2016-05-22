@@ -23,8 +23,6 @@
 #ifndef TINCAN_TAPDEV_H_
 #define TINCAN_TAPDEV_H_
 
-#include "async_io.h"
-#include "tap_frame.h"
 
 #if defined(_IPOP_LINUX)
 #include "linux/tapdev_lnx.h"
@@ -33,6 +31,8 @@
 #elif defined(_IPOP_WIN)
 #include "windows/tapdev_win.h"
 #endif
+#include "async_io.h"
+#include "tap_frame.h"
 
 namespace tincan {
 

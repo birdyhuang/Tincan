@@ -102,7 +102,7 @@ public:
   static const uint32_t kLocalControllerId;
 
   //
-  static const unsigned short kIdBytesLen;
+  static const unsigned short kUidLen;
 
   static bool kVersionCheck;
 
