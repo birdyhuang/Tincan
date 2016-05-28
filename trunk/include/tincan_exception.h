@@ -26,7 +26,7 @@
 #if defined(_IPOP_LINUX)
 #include "linux/lnx_exception.h"
 #elif defined(_IPOP_OSX)
-#include "mac/mac_exception.h"
+#include "osx/osx_exception.h"
 #elif defined(_IPOP_WIN)
 #include "windows/win_exception.h"
 #endif
@@ -38,7 +38,7 @@ namespace tincan {
 #if defined(_IPOP_LINUX)
     linux::LnxException
 #elif defined(_IPOP_OSX)
-    mac::MacException
+    osx::OsxException
 #elif defined(_IPOP_WIN)
     windows::WinException
 #endif
@@ -51,7 +51,7 @@ public:
 #if defined(_IPOP_LINUX)
     linux::LnxException()
 #elif defined(_IPOP_OSX)
-    mac::MacException()
+    osx::OsxException(ExtendedErrorInfo, SourceFile, SourceLine)
 #elif defined(_IPOP_WIN)
     windows::WinException(ExtendedErrorInfo, SourceFile, SourceLine)
 #endif
