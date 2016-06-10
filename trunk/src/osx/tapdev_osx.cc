@@ -20,6 +20,7 @@
 
 #include "osx/tapdev_osx.h"
 #include "osx/osx_exception.h"
+#include <aio.h>
 
 using std::cout;
 
@@ -30,15 +31,49 @@ const char *const TapDevOsx::TUN_PATH = "/dev/tap0";
 const char *const TapDevOsx::PATH_2_IFCONFIG = "/sbin/ifconfig";
 const char *const TapDevOsx::IFCONFIG = "ifconfig";
 const int TapDevOsx::MAX_ADAPTER_ADDRESS_LENGTH = 50;
+int TapDevOsx::ipv4_config_sock = -1;
+int TapDevOsx::ipv6_config_sock = -1;
+struct ifreq TapDevOsx::ifr;
 
+/* CALLBACK */
+void ReadCompletionRoutine(sigval sigval)
+{
+    // process the async read, and initiate a new read
+    struct aiocb *req = (struct aiocb *) sigval.sival_ptr;
+    if (aio_error(req) == 0) {
+        // request completed successfully
+        if (aio_return(req) < 0) {
+            // error handling
+        } else {
+//            ReadCompletion & rdcompl = ;
+//            struct aiocb tmp;
+//            tmp.aio_buf = rd_aio_->aio_buf;
+//            tmp.aio_fildes = rd_aio_->aio_fildes;
+//            tmp.aio_offset = 0;
+//            tmp.aio_nbytes = rd_aio_->aio_nbytes;
+//            // set up the callback function
+//            tmp.aio_sigevent.sigev_notify = SIGEV_THREAD;
+//            tmp.aio_sigevent.sigev_notify_function = ReadCompletionRoutine;
+//            tmp.aio_sigevent.sigev_notify_attributes = NULL;
+//            tmp.aio_sigevent.sigev_value.sival_ptr = &tmp;
+//            int ret = aio_read(&tmp);
+        }
+    }
+    return;
+}
 
 
 TapDevOsx::TapDevOsx(
+    const string & tap_name,
     unique_ptr<AsyncRead> async_rd,
-    unique_ptr<AsyncWrite> async_wr_) :
+    unique_ptr<AsyncWrite> async_wr) :
     rd_aio_(std::move(async_rd)),
-    wr_aio_(std::move(async_wr_)),
-    is_read_started(false)
+    wr_aio_(std::move(async_wr)),
+    is_read_started_(false)
+{}
+
+TapDevOsx::TapDevOsx():
+    is_read_started_(false)
 {}
 
 TapDevOsx::~TapDevOsx()
@@ -64,15 +99,14 @@ unique_ptr<BYTE[]> TapDevOsx::GetMacAddress(const string & device_name)
     return move(mac_address);
 }
 
-void TapDevOsx::Open(const string & dev_name)
+void TapDevOsx::Open()
 {
-    auto dev_handle = open(TUN_PATH, O_RDWR);
-    if (dev_handle < 0) {
-        throw OSXEXCEPT("Opening Tap Device failed. (Are we not root?)");
-    }
-    
-    if (dev_name.length() >= IFNAMSIZ) {
+    if (tap_name_.length() >= IFNAMSIZ) {
         throw OSXEXCEPT("Device name is longer than IFNAMESIZ - 1");
+    }
+    auto tap_handle = open(TUN_PATH, O_RDWR);
+    if (tap_handle < 0) {
+        throw OSXEXCEPT("Opening Tap Device failed. (Are we not root?)");
     }
     
     if ((ipv4_config_sock = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
@@ -83,9 +117,44 @@ void TapDevOsx::Open(const string & dev_name)
         throw OSXEXCEPT("UDP IPv6 socket creation failed");
     }
     
-    unique_ptr<BYTE[]> mac_address = GetMacAddress(dev_name);
-    strcpy(ifr.ifr_name, dev_name.c_str());
-    SetDevHandle(&dev_handle);
+    unique_ptr<BYTE[]> mac_address = GetMacAddress(tap_name_);
+    strcpy(ifr.ifr_name, tap_name_.c_str());
+    SetDevHandle(&tap_handle);
+}
+
+void TapDevOsx::Open(
+    const string & tap_name,
+    unique_ptr<AsyncRead> async_rd,
+    unique_ptr<AsyncWrite> async_wr)
+{
+    tap_name_ = tap_name;
+    rd_aio_ = move(async_rd);
+    wr_aio_ = move(async_wr);
+    TapDevOsx::Open();
+}
+
+void TapDevOsx::StartRead()
+{
+    if (is_read_started_) { return; }
+    is_read_started_ = true;
+    // initiate new async read
+    struct aiocb tmp;
+    tmp.aio_buf = rd_aio_->aio_buf;
+    tmp.aio_fildes = rd_aio_->aio_fildes;
+    tmp.aio_offset = 0;
+    tmp.aio_nbytes = rd_aio_->aio_nbytes;
+    // set up the callback function
+    tmp.aio_sigevent.sigev_notify = SIGEV_THREAD;
+    tmp.aio_sigevent.sigev_notify_function = ReadCompletionRoutine;
+    tmp.aio_sigevent.sigev_notify_attributes = NULL;
+    tmp.aio_sigevent.sigev_value.sival_ptr = &tmp;
+    
+    int ret = aio_read(&tmp);
+}
+
+void TapDevOsx::Write(TapFrame & frame)
+{
+    // initiate new async write
 }
 
 void TapDevOsx::SetDevHandle(HANDLE handle)
@@ -130,6 +199,9 @@ void TapDevOsx::SetMtu(int mtu)
         throw OSXEXCEPT("Set MTU failed");
     }
 }
+
+void TapDevOsx::Close()
+{}
 
 }   // namespace osx
 }   // namespace tincan

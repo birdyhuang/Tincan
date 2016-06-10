@@ -33,17 +33,23 @@ namespace osx {
 class TapDevOsx : public TapDevInf
 {
 public:
+  TapDevOsx();
   TapDevOsx(
+    const string & tap_name,
     unique_ptr<AsyncRead> async_rd,
-    unique_ptr<AsyncWrite> async_wr_);
-
+    unique_ptr<AsyncWrite> async_wr);
+    
   ~TapDevOsx();
 
-  void Open(const string &device);
+  void Open();
+  void Open(
+    const string & tap_name,
+    unique_ptr<AsyncRead>async_rd,
+    unique_ptr<AsyncWrite> async_wr);
 
   void Close();
 
-  void Read(TapFrame & frame);
+  void StartRead();
 
   void Write(TapFrame & frame);
 
@@ -51,7 +57,7 @@ public:
 //    unsigned long request,
 //    void* arg);
 
-    void SetFlags(short enable, short disable);
+  void SetFlags(short enable, short disable);
 
   void EnableArp();
 
@@ -103,7 +109,8 @@ protected:
     static int ipv4_config_sock, ipv6_config_sock;
     static const int MAX_ADAPTER_ADDRESS_LENGTH;
     static struct ifreq ifr;
-    bool is_read_started;
+    bool is_read_started_;
+    string tap_name_;
     unique_ptr<AsyncRead> rd_aio_;
     unique_ptr<AsyncWrite> wr_aio_;
     

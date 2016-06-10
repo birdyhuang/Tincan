@@ -35,7 +35,7 @@ public:
       kVersionCheck = true;
     }
     else if(argc == 2 && strncmp(args[1], "-h", 2) == 0) {
-      kNeedsHelp;
+//      kNeedsHelp;
     }
     if(argc == 2 && strncmp(args[1], "-p=", 3) == 0) {
       TincanParameters::kUdpPort = (unsigned short)atoi(args[1]+3);

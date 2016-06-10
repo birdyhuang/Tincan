@@ -109,13 +109,13 @@ public:
 /*
 Moves the TFB from the source frame to the destination
 */
-  TapFrame &operator= (TapFrame && rhs)
-  {
-    this->tfb_ = rhs.tfb_;
-    rhs.tfb_ = nullptr;
-    this->payload_len_ = rhs.payload_len_;
-    rhs.payload_len_ = 0;
-  }
+//  TapFrame &operator= (TapFrame && rhs)
+//  {
+//    this->tfb_ = rhs.tfb_;
+//    rhs.tfb_ = nullptr;
+//    this->payload_len_ = rhs.payload_len_;
+//    rhs.payload_len_ = 0;
+//  }
 
 /*
 Compares based on the pointer address of the TFB
@@ -226,7 +226,9 @@ Used to byte address into the payload
   }
 
 private:
-  TapFrame & Initialize() {
+//  TapFrame & Initialize() {
+  void Initialize()
+  {
     if(!tfb_) {
       tfb_ = new TapFrameBuffer;
     }
@@ -239,7 +241,7 @@ private:
 };
 
 /*
-TapFrameProperties is a ready only accessor class for querying compound
+TapFrameProperties is a read only accessor class for querying compound
 properties of the TFB.
 */
 class TapFrameProperties{
