@@ -138,7 +138,7 @@ Compares based on the pointer address of the TFB
 /*
 Used to byte address into the payload
 */
-  uint8_t & operator[](size_t index)
+  const uint8_t & operator[](size_t index) const
   {
     if(!tfb_ || index >= sizeof(tfb_->payload))
       throw TCEXCEPT("Index out of bounds");
