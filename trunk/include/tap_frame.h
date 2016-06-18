@@ -227,18 +227,17 @@ Used to byte address into the payload
   }
 
 private:
-//  TapFrame & Initialize() {
-  void Initialize()
-  {
+  TapFrame & Initialize() {
     if(!tfb_) {
       tfb_ = new TapFrameBuffer;
     }
     memset(tfb_, 0x0, sizeof(TapFrameBuffer));
     payload_len_ = 0;
+    return *this;
   }
+  
   size_t payload_len_; // length of payload in bytes
   TapFrameBuffer * tfb_;
-
 };
 
 /*

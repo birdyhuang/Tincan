@@ -61,6 +61,8 @@ bool TapFrameProperties::IsArpRequest() const
 
 bool TapFrameProperties::IsArpResponse() const
 {
+  if (tf_[12] == 0x08 && tf_[13] == 0x06 && tf_[21] == 0x02)
+  { return true; }
   return false;
 }
 
