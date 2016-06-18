@@ -109,13 +109,14 @@ public:
 /*
 Moves the TFB from the source frame to the destination
 */
-//  TapFrame &operator= (TapFrame && rhs)
-//  {
-//    this->tfb_ = rhs.tfb_;
-//    rhs.tfb_ = nullptr;
-//    this->payload_len_ = rhs.payload_len_;
-//    rhs.payload_len_ = 0;
-//  }
+  TapFrame & operator= (TapFrame && rhs)
+  {
+    this->tfb_ = rhs.tfb_;
+    rhs.tfb_ = nullptr;
+    this->payload_len_ = rhs.payload_len_;
+    rhs.payload_len_ = 0;
+    return *this;
+  }
 
 /*
 Compares based on the pointer address of the TFB
@@ -246,47 +247,58 @@ properties of the TFB.
 */
 class TapFrameProperties{
 public:
-  TapFrameProperties(const TapFrame & tf) :
-    tf_(tf)
-  {}
-
-  bool IsIccMsg() const
-  {
-    return false;
-  }
-
-  bool IsIp4() const
-  {
-    return false;
-  }
-
-  bool IsIp6() const
-  {
-    return false;
-  }
-
-  bool IsArpRequest() const
-  {
-    return false;
-  }
-
-  bool IsArpResponse() const
-  {
-    return false;
-  }
-
-  bool IsUnicast() const
-  {
-    return false;
-  }
-
-  bool IsBroadcast() const
-  {
-    return false;
-  }
+  TapFrameProperties(const TapFrame & tf);
+//  TapFrameProperties(TapFrame & tf);
+  
+  bool IsIccMsg() const;
+  bool IsIp4() const;
+  bool IsIp6() const;
+  bool IsArpRequest() const;
+  bool IsArpResponse() const;
+  bool IsUnicast() const;
+  bool IsBroadcast() const;
+//  TapFrameProperties(const TapFrame & tf) :
+//    tf_(tf)
+//  {}
+//
+//  bool IsIccMsg() const
+//  {
+//    return false;
+//  }
+//
+//  bool IsIp4() const
+//  {
+//    return false;
+//  }
+//
+//  bool IsIp6() const
+//  {
+//    return false;
+//  }
+//
+//  bool IsArpRequest() const
+//  {
+//    return false;
+//  }
+//
+//  bool IsArpResponse() const
+//  {
+//    return false;
+//  }
+//
+//  bool IsUnicast() const
+//  {
+//    return false;
+//  }
+//
+//  bool IsBroadcast() const
+//  {
+//    return false;
+//  }
 
 private:
   const TapFrame & tf_;
+//  TapFrame & tf_;
 };
 
 }
