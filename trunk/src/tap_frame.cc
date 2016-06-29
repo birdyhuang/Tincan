@@ -29,41 +29,45 @@ using namespace std;
 namespace tincan {
 
 TapFrameProperties::TapFrameProperties(const TapFrame & tf) :
-//  TapFrameProperties::TapFrameProperties(TapFrame & tf) :
   tf_(tf)
 {}
 
 bool TapFrameProperties::IsIccMsg() const
 {
-  return false;
+  /** TODO: add some comments */
+  return tf_[0] == 0x00 && tf_[1] == 0x69 && tf_[2] == 0x70 && tf_[3] == 0x6f && tf_[4] == 0x70;
 }
 
 bool TapFrameProperties::IsIp4() const
 {
-  return false;
+  /** TODO: why start from 14? */
+  return (tf_[14] >> 4) == 0x04;
 }
 
 bool TapFrameProperties::IsIp6() const
 {
-  return false;
+  /** TODO: same as above */
+  return (tf_[14] >> 4) == 0x06;
 }
 
 bool TapFrameProperties::IsArpRequest() const
 {
   /* 
-   * 12-13: ether_type (0x0806 for apr)
+   * 12-13: ether_type (0x0806 for arp)
    * 21: arp_operation (1:arp request, 2:arp response, 3:rarp request, 4:rarp response) 
    */
-  if (tf_[12] == 0x08 && tf_[13] == 0x06 && tf_[21] == 0x01)
-  { return true; }
-  return false;
+  return tf_[12] == 0x08 && tf_[13] == 0x06
+      && tf_[21] == 0x01;
 }
 
 bool TapFrameProperties::IsArpResponse() const
 {
-  if (tf_[12] == 0x08 && tf_[13] == 0x06 && tf_[21] == 0x02)
-  { return true; }
-  return false;
+  /*
+   * 12-13: ether_type (0x0806 for arp)
+   * 21: arp_operation (1:arp request, 2:arp response, 3:rarp request, 4:rarp response)
+   */
+  return tf_[12] == 0x08 && tf_[13] == 0x06
+      && tf_[21] == 0x02;
 }
 
 bool TapFrameProperties::IsUnicast() const
@@ -73,7 +77,7 @@ bool TapFrameProperties::IsUnicast() const
 
 bool TapFrameProperties::IsBroadcast() const
 {
-  return false;
+  return tf_.IsBroadcast();
 }
 
 }

@@ -90,8 +90,9 @@ public:
   Copies the specifed amount of data into the TFB.
   */
   TapFrame(unsigned char * data, size_t len) :
-    payload_len_(len > TincanParameters::kBufferSize ?
-      TincanParameters::kBufferSize : len)
+//    payload_len_(len > TincanParameters::kBufferSize ?
+//      TincanParameters::kBufferSize : len)
+  payload_len_(100)
   {
     if(!tfb_) {
       tfb_ = new TapFrameBuffer;
@@ -169,8 +170,9 @@ Used to byte address into the payload
     if(!tfb_) {
       tfb_ = new TapFrameBuffer;
     }
-    size_t len = (dest_uid.length() > TincanParameters::kUidLen) ?
-      TincanParameters::kUidLen : dest_uid.length();
+//    size_t len = (dest_uid.length() > TincanParameters::kUidLen) ?
+//      TincanParameters::kUidLen : dest_uid.length();
+    size_t len = 100;
     memcpy(tfb_->payload, dest_uid.c_str(), len);
   }
 
@@ -179,8 +181,9 @@ Used to byte address into the payload
     if(!tfb_) {
       tfb_ = new TapFrameBuffer;
     }
-    payload_len_ = len > TincanParameters::kBufferSize ?
-      TincanParameters::kBufferSize : len;
+//    payload_len_ = len > TincanParameters::kBufferSize ?
+//      TincanParameters::kBufferSize : len;
+    payload_len_ = 100;
     memcpy(tfb_->payload, data, payload_len_);
   }
 
@@ -224,6 +227,15 @@ Used to byte address into the payload
   {
     if (tfb_)
       std::swap(tfb_->src_id, tfb_->trg_id);
+  }
+  
+  bool IsBroadcast() const {
+    return tfb_->payload[0] == 0xff
+            && tfb_->payload[1] == 0xff
+            && tfb_->payload[2] == 0xff
+            && tfb_->payload[3] == 0xff
+            && tfb_->payload[4] == 0xff
+            && tfb_->payload[5] == 0xff;
   }
 
 private:
