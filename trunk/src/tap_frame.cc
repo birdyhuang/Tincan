@@ -56,8 +56,7 @@ bool TapFrameProperties::IsArpRequest() const
    * 12-13: ether_type (0x0806 for arp)
    * 21: arp_operation (1:arp request, 2:arp response, 3:rarp request, 4:rarp response) 
    */
-  return tf_[12] == 0x08 && tf_[13] == 0x06
-      && tf_[21] == 0x01;
+  return (((*(uint16_t*)&tf_[12] & 0xff00) >> 8) | ((*(uint16_t*)&tf_[12] & 0x00ff) << 8)) == 0x0806 && tf_[21] == 0x01;
 }
 
 bool TapFrameProperties::IsArpResponse() const
@@ -66,8 +65,7 @@ bool TapFrameProperties::IsArpResponse() const
    * 12-13: ether_type (0x0806 for arp)
    * 21: arp_operation (1:arp request, 2:arp response, 3:rarp request, 4:rarp response)
    */
-  return tf_[12] == 0x08 && tf_[13] == 0x06
-      && tf_[21] == 0x02;
+  return (((*(uint16_t*)&tf_[12] & 0xff00) >> 8) | ((*(uint16_t*)&tf_[12] & 0x00ff) << 8)) == 0x0806 && tf_[21] == 0x02;
 }
 
 bool TapFrameProperties::IsUnicast() const

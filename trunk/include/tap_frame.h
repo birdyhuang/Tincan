@@ -25,6 +25,7 @@
 
 #include <memory>
 #include <string>
+#include <cstring>
 #include "tincan_exception.h"
 #include "tincan_parameters.h"
 namespace tincan
@@ -230,12 +231,10 @@ Used to byte address into the payload
   }
   
   bool IsBroadcast() const {
-    return tfb_->payload[0] == 0xff
-            && tfb_->payload[1] == 0xff
-            && tfb_->payload[2] == 0xff
-            && tfb_->payload[3] == 0xff
-            && tfb_->payload[4] == 0xff
-            && tfb_->payload[5] == 0xff;
+    for (int i = 0; i < 6; i++) {
+      if (tfb_->payload[i] != 0xff) { return false; }
+    }
+    return true;
   }
 
 private:
